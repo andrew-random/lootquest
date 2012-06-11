@@ -2,12 +2,10 @@
 	TODO:
 
 	- tiny view for each tile in the garden view
-	- throw all the existing game.nonsense into the garden view
 	- local storage?
 	- local DB?
 	- timers for each tile
 	- individual animations for each tile
-	- better CAAT prefix for every view, ever?
 	- Heroes
 	- Henchmen
 	- Environments

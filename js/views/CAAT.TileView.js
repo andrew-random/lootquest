@@ -18,8 +18,11 @@ game.CAAT.TileView = Backbone.View.extend({
     var tileMargin  = game.CAAT.SceneGardenView.tileMargin;
     var tilePos     = this.model.getTilePos();
 
-    var posX        = (tilePos.x * tileWidth) + (tilePos.x * tileMargin);
-    var posY        = (tilePos.y * tileHeight) + (tilePos.y * tileMargin);
+
+    var tileOffsetLeft  = game.getField().getMinTileWidth() * -1;
+    var tileOffsetTop   = game.getField().getMinTileHeight() * -1;
+    var posX        = ((tilePos.x + tileOffsetLeft) * tileWidth) + ((tilePos.x + tileOffsetLeft) * tileMargin);
+    var posY        = ((tilePos.y + tileOffsetTop) * tileHeight) + ((tilePos.y + tileOffsetTop) * tileMargin);
 
     var actor = new CAAT.ActorContainer(). 
       enableEvents(true).
@@ -31,7 +34,7 @@ game.CAAT.TileView = Backbone.View.extend({
       setTextAlign('center').
       setBaseline('middle').
       enableEvents(false).
-      setText('empty');
+      setText(tilePos.x + ', ' + tilePos.y);
     actor.addChild(label);
 
     actor.mouseDown = function (e) {

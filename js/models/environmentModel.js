@@ -24,6 +24,14 @@ game.ModelEnvironment = Backbone.Model.extend({
 				quantity:1,
 				maxQuantity:3
 			}));
+			/*possibleLoot.push(new game.ModelItem({
+				name:'Box', 
+				type:'box', 
+				quantity:1,
+				maxQuantity:1,
+				maxChildItems:2,
+				isContainer:true
+			}));*/
 
 			return possibleLoot[rand(0, possibleLoot.length -1 )];
 		}

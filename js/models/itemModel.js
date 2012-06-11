@@ -27,8 +27,8 @@ game.ModelItem = Backbone.Model.extend({
 				this.quantity = options.quantity;
 			}
 			if (options.isContainer) {
-				this.isContainer = true;
-				this.children = new game.collectionItem();
+				this.set('isContainer', true);
+				this.children = [];
 			}
 			if (options.uniqueId) {
 				this.set('uniqueId', options.uniqueId);
@@ -67,7 +67,6 @@ game.ModelItem = Backbone.Model.extend({
 		},
 
 		canPlaceItem: function (newItemModel) {
-
 			// is this the same item?
 			if (this.get('type') == newItemModel.get('type')) {
 
@@ -78,7 +77,7 @@ game.ModelItem = Backbone.Model.extend({
 					throw 'Exceeds max quantity';
 				}
 			
-			} else if (this.isContainer) {
+			} else if (this.isContainer()) {
 				//is this object a container?
 				
 				//  and can it contain items of this type?
@@ -102,11 +101,47 @@ game.ModelItem = Backbone.Model.extend({
 
 		placeItem: function (newItemModel) {
 			if (this.get('type') == newItemModel.get('type')) {
+
+				// sum of quantity
 				this.set('quantity', this.get('quantity') + newItemModel.get('quantity'));
 				
 				// remove duplicate model
 				game.getField().destroyItem(newItemModel);
+
+			} else {
+
+				newItemModel.setParentId(this.get('uniqueId'));
+				this.addChild(newItemModel);
+
 			}
+		},
+
+		/**
+		 * Child and container functions
+		 */
+
+		addChild: function (itemModel) {
+			this.children.push(itemModel);
+		},
+
+		hasChildren: function () {
+			return this.children.length !== 0;	
+		},
+
+		removeChild: function () {
+			// do stuff
+		},
+
+		getChildren: function () {
+			return this.children;
+		},
+
+		isChild: function () {
+			return this.getParentId();
+		},
+
+		isContainer: function () {
+			return this.get('isContainer') === true;
 		}
 
 });

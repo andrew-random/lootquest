@@ -2,10 +2,15 @@ game.ModelField = Backbone.Model.extend({
 
 	tileCollection  : null,
  	lootCollection  : null,
- 	totalTileWidth	: 5,		// number of x tiles in field
-	totalTileHeight : 5,		// number of y tiles in field
 
 	initialize: function (options) {
+
+		
+		// todo: pull values from DB
+		this.set('minTileWidth', -2);
+		this.set('maxTileWidth', 2);
+		this.set('minTileHeight', -2);
+		this.set('maxTileHeight', 2);
 
 		this.initTileCollection();
 
@@ -19,10 +24,10 @@ game.ModelField = Backbone.Model.extend({
 		this.tileCollection = new game.collectionTile();
 		// todo: init models from local storage
 
-		for (var y = 0; y <= (this.totalTileWidth - 1); y++) {
+		for (var y = this.get('minTileWidth'); y <= this.get('maxTileHeight'); y++) {
 			
 			var column = [];
-			for (var x = 0; x <= (this.totalTileHeight - 1); x++ ) {
+			for (var x = this.get('minTileHeight'); x <= this.get('maxTileHeight'); x++ ) {
 
 				var tileModel = new game.ModelTile();
 				tileModel.setTilePos(x, y);
@@ -76,6 +81,20 @@ game.ModelField = Backbone.Model.extend({
 		return this.itemCollection.find(function (itemModel) {
 			return itemModel.get('uniqueId') == uniqueId;
 		});
+	},
+
+	getMinTileWidth: function () {
+		return this.get('minTileWidth');
+	},
+	getMaxTileWidth: function () {
+		return this.get('maxTileWidth');
+	},
+
+	getMinTileHeight: function () {
+		return this.get('minTileHeight');
+	},
+	getMaxTileHeight: function () {
+		return this.get('maxTileHeight');
 	},
 
 	getTotalFieldDimensions: function () {

@@ -21,6 +21,27 @@ game.CAAT.ItemView = Backbone.View.extend({
     this.actor = null;
   },
 
+  getCanvasPos: function () {
+    var tilePos = this.model.getTilePos();
+    if (tilePos) {
+      var tileEntity      = game.getRegistry().getTileEntityByPos(tilePos.x, tilePos.y);
+      var tileEntityActor = tileEntity.getActor();
+      return {
+        x: tileEntityActor.x + tileEntity.container.x,
+        y: tileEntityActor.y + tileEntity.container.y,
+      }
+
+    } else {
+
+      tilePos = {x:0, y:0};
+
+      return {
+        x: (tilePos.x * game.CAAT.SceneGardenView.tileWidth) + (tilePos.x * game.CAAT.SceneGardenView.tileMargin),
+        y: (tilePos.y * game.CAAT.SceneGardenView.tileHeight) + (tilePos.y * game.CAAT.SceneGardenView.tileMargin),
+      };
+    }
+  },
+
   redraw: function () {
     console.log('redraw called');
     this.expireActor();
@@ -33,27 +54,21 @@ game.CAAT.ItemView = Backbone.View.extend({
     var tileHeight  = game.CAAT.SceneGardenView.tileHeight;
     var tileMargin  = game.CAAT.SceneGardenView.tileMargin;
     var tilePos     = this.model.getTilePos();
-    
-    if (tilePos) {
-   
-      var tileEntity  = game.getRegistry().getTileEntityByPos(tilePos.x, tilePos.y);
-      var tileEntityActor = tileEntity.getActor();
-      var posX        = tileEntityActor.x + tileEntity.container.x;
-      var posY        = tileEntityActor.y + tileEntity.container.y;
-   
-    } else {
-
-      tilePos = {x:0, y:0};
-      var posX        = (tilePos.x * tileWidth) + (tilePos.x * tileMargin);
-      var posY        = (tilePos.y * tileHeight) + (tilePos.y * tileMargin);
-    }
-
+    var canvasPos   = this.getCanvasPos();
    
 
     var tileActorContainer = new CAAT.ActorContainer(). 
-      setBounds(posX, posY, tileWidth, tileHeight).
-      enableDrag(true).
-      setFillStyle('blue');
+      setBounds(canvasPos.x, canvasPos.y, tileWidth, tileHeight).
+      enableDrag(true);
+  
+    if (this.model.isContainer()) {
+      tileActorContainer.setFillStyle('navyblue')
+    } else if (this.model.isChild()) {
+      tileActorContainer.setSize(30, 30);
+      tileActorContainer.setFillStyle('lightblue');
+    } else {
+      tileActorContainer.setFillStyle('blue');
+    }
     
     var label = new CAAT.TextActor().
       setBounds(0, tileHeight / 2, tileWidth, 0).
@@ -75,20 +90,31 @@ game.CAAT.ItemView = Backbone.View.extend({
     tileActorContainer.addChild(quantityLabel);
 
     var idLabel = new CAAT.TextActor().
-      setPosition(30, 10).
+      setPosition(10, 10).
       setTextAlign('center').
       setTextFillStyle('#fff').
       setBaseline('top').
       enableEvents(false).
-      setText(this.model.get('uniqueId'));
+      setText('#' + this.model.get('uniqueId'));
     tileActorContainer.addChild(idLabel);
+
+    if (this.model.get('maxQuantity') == this.model.get('quantity')) {
+     var maxLabel = new CAAT.TextActor().
+          setPosition(70, 10).
+          setTextAlign('center').
+          setTextFillStyle('red').
+          setBaseline('top').
+          enableEvents(false).
+          setText('max');
+      tileActorContainer.addChild(maxLabel);
+    }
 
     tileActorContainer.mouseUp = function (e) {
 
       var fieldDimensions = game.getField().getTotalFieldDimensions();
 
       var tileActors = [];
-      var tileEntities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeTile);;
+      var tileEntities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeTile);
       for (var x in tileEntities) {
           tileActors.push(tileEntities[x].getActor());
       }
@@ -110,8 +136,8 @@ game.CAAT.ItemView = Backbone.View.extend({
       }
 
       if (!wasPlaced) {
-        console.log('could not place, reset position', posX, posY);
-        tileActorContainer.setLocation(posX, posY);
+        console.log('could not place, reset position', canvasPos.x, canvasPos.y);
+        tileActorContainer.setLocation(canvasPos.x, canvasPos.y);
         return false;
       }
       
