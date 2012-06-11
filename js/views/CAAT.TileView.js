@@ -21,12 +21,10 @@ game.CAAT.TileView = Backbone.View.extend({
     var posX        = (tilePos.x * tileWidth) + (tilePos.x * tileMargin);
     var posY        = (tilePos.y * tileHeight) + (tilePos.y * tileMargin);
 
-    var tileActorContainer = new CAAT.ActorContainer(). 
+    var actor = new CAAT.ActorContainer(). 
       enableEvents(true).
       setBounds(posX, posY, tileWidth, tileHeight).
           setFillStyle('#333');
-
-    tileActorContainer.gameData = {view:this};
 
     var label = new CAAT.TextActor().
       setBounds(0, tileHeight / 2, tileWidth, 20).
@@ -34,15 +32,14 @@ game.CAAT.TileView = Backbone.View.extend({
       setBaseline('middle').
       enableEvents(false).
       setText('empty');
-    tileActorContainer.addChild(label);
+    actor.addChild(label);
 
-    tileActorContainer.mouseDown = function (e) {
-      
+    actor.mouseDown = function (e) {
       label.setText('CLicked');
     };
 
     // attach to scene
-    this.actor = tileActorContainer;
+    this.actor = actor;
 
   },
 

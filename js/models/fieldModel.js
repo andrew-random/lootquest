@@ -27,7 +27,7 @@ game.ModelField = Backbone.Model.extend({
 				var tileModel = new game.ModelTile();
 				tileModel.setTilePos(x, y);
 				
-				this.tileCollection.push(tileModel);
+				this.tileCollection.add(tileModel);
 				
 			}
 		}
@@ -42,18 +42,53 @@ game.ModelField = Backbone.Model.extend({
 		// todo: init models from local storage
 	},
 
-	placeItem: function (itemModel, posX, posY) {
-		itemModel.setTilePos(posX, posY);
+	canPlaceItem: function (itemModel, posX, posY) {
+		var tileEntity = this.getTileByPos(posX, posY);
+		return tileEntity.canPlaceItem(itemModel);
 	},
 
-	getItemByUniqueId: function (uniqueId) {
+	placeItem: function (itemModel, posX, posY) {
+		// clear old tile
+		if (itemModel.hasTilePos()) {
+			var oldPos 			= itemModel.getTilePos();
+			var oldTileModel 	= this.getTileByPos(oldPos.x, oldPos.y);
+			if (oldTileModel.canRemoveItem(itemModel)) {
+				oldTileModel.removeItem(itemModel);
+			}
+		}
+
+		// move to new tile
+		itemModel.setTilePos(posX, posY);
+		
+		var tileModel = this.getTileByPos(posX, posY);
+		tileModel.placeItem(itemModel);
+
+		//todo: save to local storage
+	},
+
+	getTileByPos: function (posX, posY) {
+		return this.tileCollection.find(function (tileModel) {
+			return tileModel.hasTilePos(posX, posY);
+		});
+	},
+
+	getItemByUniqueId: function () {
 		return this.itemCollection.find(function (itemModel) {
-			return itemModel.getUniqueId() == uniqueId;
+			return itemModel.get('uniqueId') == uniqueId;
 		});
 	},
 
 	getTotalFieldDimensions: function () {
 		return {x:this.totalTileWidth, y:this.totalTileHeight};
+	},
+
+	destroyItem: function (doomedItemModel) {
+		// remove the view/entity
+		game.getRegistry().removeEntityByUniqueId(doomedItemModel.get('uniqueId'));
+
+		// remove the item model
+		this.itemCollection.remove(doomedItemModel);
+		
 	}
 
 });

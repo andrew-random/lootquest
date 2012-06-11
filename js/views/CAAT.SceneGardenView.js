@@ -6,15 +6,10 @@
 */
 game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 
-	// constants are below
-	tileActors		: [],
-	itemActors		: [],
-
 	initialize: function (options) {
 
 		// events
 		this.model.on('newLoot', this.newLoot, this);
-
 
 		this.director = options.director;
 
@@ -25,19 +20,42 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 		  setBounds(30, 200, 580, 480).setFillStyle('green');
 		this.scene.addChild(this.tileContainer);
 
-
 		this.model.getTileCollection().each(function (tileModel) {
-			var tileView = new game.CAAT.TileView({container:this.tileContainer, model:tileModel});
+			var tileView = new game.CAAT.TileView({
+				container 	: this.tileContainer, 
+				model 		: tileModel
+			});
 			tileView.render();
-			this.tileActors.push(tileView);	
+			game.getRegistry().addEntity(game.ModelItem.EntityTypeTile, tileView);
 		}, this);
+
+		var adventureButton = new CAAT.ActorContainer().setBounds(500, 20, 100, 40).setFillStyle('#eee');
+		adventureButton.mouseUp = function () {
+		
+			// adventure!
+			game.adventureInEnvironment(new game.ModelEnvironment());
+
+		}
+		var adventureLabel = new CAAT.TextActor().
+	      setBounds(30, 15, 20, 20).
+	      setTextAlign('center').
+	      setTextFillStyle('#000').
+	      setBaseline('top').
+	      enableEvents(false).
+	      setText('ADVENTURE');
+	    adventureButton.addChild(adventureLabel);
+
+		this.scene.addChild(adventureButton);
 		
 	},
 
 	newLoot: function (itemModel) {
-		var itemView = new game.CAAT.ItemView({container:this.scene, model:itemModel, tileActors:this.tileActors});
+		var itemView = new game.CAAT.ItemView({
+				container 	: this.scene, 
+				model 		: itemModel
+		});
 		itemView.render();
-		this.itemActors.push(itemView);	
+		game.getRegistry().addEntity(game.ModelItem.EntityTypeItem, itemView);
 	},
 
 	render: function() {

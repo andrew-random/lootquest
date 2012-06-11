@@ -6,9 +6,24 @@ game.ModelEnvironment = Backbone.Model.extend({
 
 		getRandomLoot: function () {
 			var possibleLoot = [];
-			possibleLoot.push(new game.ModelItem({name:'Gold', quantity:100, uniqueId:'wtf', tilePost:{x:3, y:4}}));
-			possibleLoot.push(new game.ModelItem({name:'Sword', quantity:1}));
-			possibleLoot.push(new game.ModelItem({name:'Gem', quantity:3}));
+			possibleLoot.push(new game.ModelItem({
+				name:'Gold', 
+				type: 'gold',
+				quantity:rand(20, 100),
+				maxQuantity: 300
+			}));
+			possibleLoot.push(new game.ModelItem({
+				name: 'Sword', 
+				type: 'weapon', 
+				quantity:1,
+				maxQuantity:2,
+			}));
+			possibleLoot.push(new game.ModelItem({
+				name:'Gem', 
+				type:'gem', 
+				quantity:1,
+				maxQuantity:3
+			}));
 
 			return possibleLoot[rand(0, possibleLoot.length -1 )];
 		}

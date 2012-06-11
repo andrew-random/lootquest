@@ -13,6 +13,10 @@ game.CAAT.DirectorView = Backbone.View.extend({
   SCENE_GARDEN    : 'SceneGardenView',
 
   setScene: function (viewName) {
+    
+    // clear all existing entities
+    game.getRegistry().clearEntities();
+
     this.activeSceneView = new game.CAAT[viewName]({model:this.model, director:this.director});
 
     // add new CAAT scene to director

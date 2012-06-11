@@ -18,30 +18,6 @@
 
 **/
 
-Backbone.setDomLibrary($); 
-
-//CAAT.DEBUGAABB = true;
-
-// desktop party
-$(document).ready(function() {
-
-	if ('ontouchstart' in window) {
-		// do nothing
-		return false;
-	}
-	
-	// get this party started
-	game.initialize();
-
-});
-
-// mobile party
-document.addEventListener('deviceready', function() {
-	// get this party started
-	game.initialize();
-});
-
-
 var game = {
 
 	CAAT 			: [],
@@ -60,9 +36,6 @@ var game = {
 				model 	: this.fieldModel, 
 				el 		: $('canvas#gameView')
 		});		
-
-		// adventure!
-		this.adventureInEnvironment(new game.ModelEnvironment());
 		
 	},
 
@@ -84,6 +57,10 @@ var game = {
 
 	getField: function () {
 		return this.fieldModel;
+	},
+
+	getRegistry: function () {
+		return this.registry;
 	}
 
 }

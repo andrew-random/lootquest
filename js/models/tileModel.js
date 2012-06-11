@@ -8,36 +8,63 @@ game.ModelTile = Backbone.Model.extend({
 		},
 
 		setTilePos: function (tileX, tileY) {
-			this.tileX = tileX;
-			this.tileY = tileY;
+			this.set('tilePos', {x:tileX, y:tileY});
 		},
 
 		getTilePos: function () {
-			return {x: this.tileX, y:this.tileY};
+			return this.get('tilePos');
 		},
 
-		setItemModel: function (itemModel) {
-			this.itemModel = itemModel;
-			this.trigger("change:itemModel", this, itemModel);
+		hasTilePos: function (posX, posY) {
+			var tilePos = this.getTilePos();
+			return tilePos.x == posX && tilePos.y == posY;
+		},
+
+		setItemModel: function (itemModel) {	
+			if (itemModel) {
+				this.set('itemModel', itemModel);
+			} else {
+				this.unset('itemModel');
+			}
 			return true;
 		},
 
 		getItemModel: function () {
-			return this.itemModel;
+			return this.get('itemModel');
 		},
 
-		getId: function () {
-			return 'tile' + this.tileX + ',' + this.tileY;
-		},
-
-		canAddItem: function (newItemModel) {
+		canPlaceItem: function (newItemModel) {
 			var existingItemModel = this.getItemModel();
 			if (!existingItemModel) {
 				return true;
-			} else if (existingItemModel.canAddItem(newItemModel)) {
-				return true;
 			} else {
-				return false;
+				try {
+					
+					existingItemModel.canPlaceItem(newItemModel);
+					return true;
+
+				} catch (exception) {
+					return false;
+				}
 			}
+		}, 
+
+		placeItem: function (itemModel) {
+			if (!this.getItemModel(itemModel)) {
+				console.log('A', this.getTilePos());
+				this.setItemModel(itemModel);	
+			} else {
+				console.log('B');
+				this.getItemModel().placeItem(itemModel);
+			}
+			
+		},
+
+		canRemoveItem: function (itemModel) {
+			return true;
+		},
+
+		removeItem: function (itemModel) {
+			this.setItemModel(null);
 		}
 });

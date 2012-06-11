@@ -1,3 +1,28 @@
+Backbone.setDomLibrary($); 
+
+//CAAT.DEBUGAABB = true;
+
+// desktop party
+$(document).ready(function() {
+
+    if ('ontouchstart' in window) {
+        // do nothing
+        return false;
+    }
+    
+    // get this party started
+    game.initialize();
+
+});
+
+// mobile party
+document.addEventListener('deviceready', function() {
+    // get this party started
+    game.initialize();
+});
+
+
+
 function rand(min,max) {
 	return Math.floor(Math.random() * (max-min+1)) + min;
 }
