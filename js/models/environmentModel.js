@@ -40,7 +40,7 @@ game.ModelEnvironment = Backbone.Model.extend({
 				maxQuantity:300,
 				hasSprite:true,
 				isContainer:true,
-				weight: 10
+				weight: 5
 			}));
 			possibleLoot.push(new game.ModelItem({
 				name:'Jewellery', 
@@ -60,7 +60,7 @@ game.ModelEnvironment = Backbone.Model.extend({
 				maxQuantity:5,
 				hasSprite:true,
 				isContainer:true,
-				weight:5
+				weight:2
 			}));
 
 			return getWeightedRandom(possibleLoot);
