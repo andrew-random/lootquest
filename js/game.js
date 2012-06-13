@@ -45,21 +45,22 @@ var game = {
 		var fieldModel		= this.getField();
 		var environment 	= new game.ModelEnvironment();
 
-		var unplacedLoot 	= fieldModel.getUnplacedLoot().length;
-
+		var totalLoot 		= fieldModel.itemCollection.filter(function (itemModel) {
+			return itemModel.hasTilePos();
+		}).length;
+		var totalPossibleLoot = 25;
 		var maxLoot = rand(1, 5);
 		for (var x = 0; x <= maxLoot; x++) {
 
-			if (unplacedLoot == this.maxUnplacedLoot) {
+			if (totalLoot == totalPossibleLoot) {
+				console.log('Board is full.');
 				continue;
 			}
-			unplacedLoot++;
+			totalLoot++;
 
 			var randomItem = environment.getRandomLoot();
 			fieldModel.itemCollection.push(randomItem);
-			//if (randomItem.get('type') == 'gold') {
-				fieldModel.placeInRandomTile(randomItem);
-			//}
+			fieldModel.placeInRandomTile(randomItem);			
 
 			// notify views
 			fieldModel.trigger("newLoot", randomItem, this);

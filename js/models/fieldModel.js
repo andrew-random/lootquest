@@ -1,8 +1,5 @@
 game.ModelField = Backbone.Model.extend({
 
-	tileCollection  : null,
- 	lootCollection  : null,
-
 	initialize: function (options) {
 
 		

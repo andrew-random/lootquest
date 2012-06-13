@@ -38,3 +38,24 @@ function getHash(length){
     while(s.length< length) s+= randomchar();
     return s;
 }
+
+function getWeightedRandom(data) {
+
+    var totalWeight     = 0;
+    var currentWeight   = 0;
+    var count           = data.length;
+   
+    while (count--) {
+        totalWeight += data[count].get('weight');
+    }
+
+    var random = Math.floor(rand(0, totalWeight));
+
+    var count           = data.length;
+    while (count--) {
+        currentWeight += data[count].get('weight');
+        if (random <= currentWeight) {
+            return data[count];
+        }
+    }
+}

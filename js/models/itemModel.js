@@ -96,7 +96,7 @@ game.ModelItem = Backbone.Model.extend({
 				if (this.canContainType(newItemModel.get('type'))) {
 					return true;
 				} else {
-					throw 'cannot contain type';
+					throw 'cannot contain items of type "' + newItemModel.get('type') + '"';
 				}
 
 			} else {
@@ -141,14 +141,43 @@ game.ModelItem = Backbone.Model.extend({
 
 			} else {
 
-				if (newItemModel.hasTilePos()) {
-					var tilePos = newItemModel.getTilePos();
-					game.getField().clearTile(tilePos.x, tilePos.y);
-				}
 
-				newItemModel.setParentId(this.get('uniqueId'));
-				newItemModel.clearTilePos();
-				this.addChild(newItemModel.getUniqueId());
+				// if there is already a child with the same type in this container, combine them.
+				var childItemModel = this.getChildByType(newItemModel.get('type'));
+				if (childItemModel) {
+
+					// sum of quantity
+					if (this.getMaxContainedQuantity() >= this.getContainedQuantity() + newItemModel.get('quantity')) {
+
+						// combine total quantity ( ignoring item max )
+						childItemModel.set('quantity', childItemModel.get('quantity') + newItemModel.get('quantity'));
+
+						// set new item to quantity 0, which will cause fieldModel's addToItem to destroy it.
+						newItemModel.set('quantity', 0);
+
+					} else {
+						
+
+						// update the new item
+						var leftOver = this.getMaxContainedQuantity() - this.getContainedQuantity();
+						newItemModel.set('quantity', newItemModel.get('quantity') - leftOver);
+					
+						// append as much quantity as we can
+						childItemModel.set('quantity', this.getMaxContainedQuantity());
+
+					}
+
+				} else {
+
+					if (newItemModel.hasTilePos()) {
+						var tilePos = newItemModel.getTilePos();
+						game.getField().clearTile(tilePos.x, tilePos.y);
+					}
+
+					newItemModel.setParentId(this.get('uniqueId'));
+					newItemModel.clearTilePos();
+					this.addChild(newItemModel.getUniqueId());
+				}
 
 			}
 		},
@@ -194,6 +223,32 @@ game.ModelItem = Backbone.Model.extend({
 			this.set('children', data);
 		},
 
+		getChildByType: function (itemType) {
+			var children = this.getChildrenModels();
+			var count = children.length;
+			while (count--) {
+				if (children[count].get('type') == itemType) {
+					return children[count];
+				}
+			}
+			return false;
+		},
+
+		getChildrenModels: function () {
+			var children = this.getChildren();
+			var count = children.length;
+			var data = [];
+			while (count--) {
+				var childItem = game.getField().getItemByUniqueId(children[count]);
+				//hack: why the heck aren't children object specific?
+				if (childItem.getParentId() == this.getUniqueId()) {
+					data.push(childItem);
+				}
+				
+			}
+			return data;
+		},
+
 		isChild: function () {
 			return this.getParentId() !== null;
 		},
@@ -203,19 +258,14 @@ game.ModelItem = Backbone.Model.extend({
 		},
 
 		getContainedQuantity: function () {
-			var children = this.getChildren();
-			var count = children.length;
+			var childModels = this.getChildrenModels();
+			var count = childModels.length;
 			var total = 0;
 			while (count--) {
-
-				var childItem = game.getField().getItemByUniqueId(children[count]);
-				//hack: why the hell aren't children object specific?
-				if (childItem.getParentId() == this.getUniqueId()) {
-					total += childItem.get('quantity');
-				}
-				
+				total += childModels[count].get('quantity');	
 			}
 			return total;
+			
 		},
 
 		getMaxContainedQuantity: function () {

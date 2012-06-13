@@ -40,8 +40,8 @@ game.CAAT.ItemView = Backbone.View.extend({
       var tileEntity      = game.getRegistry().getTileEntityByPos(tilePos.x, tilePos.y);
       var tileEntityActor = tileEntity.getActor();
       return {
-        x: tileEntityActor.x + tileEntity.container.x,
-        y: tileEntityActor.y + tileEntity.container.y,
+        x: tileEntityActor.x + tileEntity.container.x + 25,
+        y: tileEntityActor.y + tileEntity.container.y + 20,
       };
 
 
@@ -82,14 +82,10 @@ game.CAAT.ItemView = Backbone.View.extend({
       setFillStyle('#515151').
       enableDrag(true);
   
-    if (this.model.isContainer()) {
-    
-      tileActorContainer.setFillStyle('navyblue')
-    
-    } else if (this.model.isChild()) {
+    if (this.model.isChild()) {
 
       tileActorContainer.setFillStyle('lightblue');
-      tileActorContainer.setScale(.3, .3);
+      tileActorContainer.setScale(.5, .5);
       tileActorContainer.enableEvents(false);
     }
     
@@ -116,7 +112,7 @@ game.CAAT.ItemView = Backbone.View.extend({
       setTextFillStyle('#fff').
       enableEvents(false).
       setText(this.model.get('name')).
-      setFont('18px Verdana');
+      setFont('16px Verdana');
     tileActorContainer.addChild(label);
 
     var quantityLabel = new CAAT.TextActor().
@@ -129,13 +125,19 @@ game.CAAT.ItemView = Backbone.View.extend({
 
     if (this.model.isContainer()) {
       quantityLabel.setText(this.model.getContainedQuantity() + '/' + this.model.getMaxContainedQuantity());
+      if (this.model.getMaxContainedQuantity() == this.model.getContainedQuantity()) {
+         quantityLabel.setTextFillStyle('#06ff00');
+      }
     } else {
-      quantityLabel.setText(this.model.get('quantity') + '/' + this.model.get('maxQuantity'));
+      if (this.model.get('maxQuantity') != 1) {
+        quantityLabel.setText(this.model.get('quantity') + '/' + this.model.get('maxQuantity'));
+      }
+      if (this.model.get('maxQuantity') == this.model.get('quantity')) {
+         quantityLabel.setTextFillStyle('#06ff00');
+      }
     }
     
-    if (this.model.get('maxQuantity') == this.model.get('quantity')) {
-        quantityLabel.setTextFillStyle('#06ff00');
-    }
+    
 
     var idLabel = new CAAT.TextActor().
       setPosition(80, 60).
@@ -210,7 +212,7 @@ game.CAAT.ItemView = Backbone.View.extend({
       if (self.model.hasChildren()) {
 
         var childUniqueIds = self.model.getChildren();
-        
+
         var count = childUniqueIds.length;
         while (count--) {
           var childEntity = game.getRegistry().getEntityByUniqueId(childUniqueIds[count], game.ModelItem.EntityTypeItem);
