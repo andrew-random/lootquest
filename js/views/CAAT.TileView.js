@@ -33,13 +33,11 @@ game.CAAT.TileView = Backbone.View.extend({
       setBounds(0, tileHeight / 2, tileWidth, 20).
       setTextAlign('center').
       setBaseline('middle').
+      setTextFillStyle('#999').
       enableEvents(false).
       setText(tilePos.x + ', ' + tilePos.y);
     actor.addChild(label);
 
-    actor.mouseDown = function (e) {
-      label.setText('CLicked');
-    };
 
     // attach to scene
     this.actor = actor;

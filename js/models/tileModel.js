@@ -1,8 +1,10 @@
 game.ModelTile = Backbone.Model.extend({
 
-		tileX		: null,		// 0, 0 to 10, 10, etc.
-		tileY		: null,
-		itemModel	: null,		// child items contained by this tile.
+		defaults: {
+			tileX		: null,		// 0, 0 to 10, 10, etc.
+			tileY		: null,
+			itemModel	: null		// child items contained by this tile.
+		},
 
 		initialize: function () {
 		},
@@ -24,7 +26,7 @@ game.ModelTile = Backbone.Model.extend({
 			if (itemModel) {
 				this.set('itemModel', itemModel);
 			} else {
-				this.unset('itemModel');
+				this.set('itemModel', null);
 			}
 			return true;
 		},
@@ -33,31 +35,38 @@ game.ModelTile = Backbone.Model.extend({
 			return this.get('itemModel');
 		},
 
-		canPlaceItem: function (newItemModel) {
-			var existingItemModel = this.getItemModel();
-			if (!existingItemModel) {
-				return true;
-			} else {
+		hasItemModel: function () {
+			return this.get('itemModel') !== null;
+		},
+
+		canPlaceNewItem: function (newItemModel) {
+			return this.hasItemModel() === false;
+		}, 
+
+		placeNewItem: function (newItemModel) {
+
+			// place on empty tile
+			this.setItemModel(newItemModel);
+			
+		},
+
+		canAddToItem: function (newItemModel) {
+			if (this.hasItemModel()) {
 				try {
-					
-					existingItemModel.canPlaceItem(newItemModel);
+
+					this.getItemModel().canAddToItem(newItemModel);
 					return true;
 
 				} catch (exception) {
+					console.log('Could not add to item #' + newItemModel.getUniqueId() + '/' + newItemModel.get('name') + ' on #' + this.getItemModel().getUniqueId() + '/' + this.getItemModel().get('name') +': ' + exception);
 					return false;
 				}
 			}
-		}, 
+			return false;
+		},
 
-		placeItem: function (itemModel) {
-			if (!this.getItemModel(itemModel)) {
-				console.log('A', this.getTilePos());
-				this.setItemModel(itemModel);	
-			} else {
-				console.log('B');
-				this.getItemModel().placeItem(itemModel);
-			}
-			
+		addToItem: function (itemModel) {
+			return this.getItemModel().addToItem(itemModel);
 		},
 
 		canRemoveItem: function (itemModel) {

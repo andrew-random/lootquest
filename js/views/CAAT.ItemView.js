@@ -15,10 +15,11 @@ game.CAAT.ItemView = Backbone.View.extend({
   },
 
   expireActor: function () {
-    console.log('expireactor', this.model);
-    this.actor.setDiscardable(true);
-    this.actor.setExpired(true);
-    this.actor = null;
+    if (this.actor !== null) {
+      this.actor.setDiscardable(true);
+      this.actor.setExpired(true);
+      this.actor = null;
+   }
   },
 
   getCanvasPos: function () {
@@ -32,8 +33,14 @@ game.CAAT.ItemView = Backbone.View.extend({
       }
 
     } else {
-
-      tilePos = {x:0, y:0};
+      var allItems = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeItem);
+      var leftOffset = 0;
+      for (var x in allItems) {
+        if (!allItems[x].model.hasTilePos()) {
+          leftOffset++;
+        }
+      }
+      tilePos = {x:leftOffset, y:0};
 
       return {
         x: (tilePos.x * game.CAAT.SceneGardenView.tileWidth) + (tilePos.x * game.CAAT.SceneGardenView.tileMargin),
@@ -43,7 +50,6 @@ game.CAAT.ItemView = Backbone.View.extend({
   },
 
   redraw: function () {
-    console.log('redraw called');
     this.expireActor();
     this.render();
   },
@@ -59,6 +65,7 @@ game.CAAT.ItemView = Backbone.View.extend({
 
     var tileActorContainer = new CAAT.ActorContainer(). 
       setBounds(canvasPos.x, canvasPos.y, tileWidth, tileHeight).
+      setFillStyle('#515151').
       enableDrag(true);
   
     if (this.model.isContainer()) {
@@ -66,48 +73,57 @@ game.CAAT.ItemView = Backbone.View.extend({
     } else if (this.model.isChild()) {
       tileActorContainer.setSize(30, 30);
       tileActorContainer.setFillStyle('lightblue');
-    } else {
-      tileActorContainer.setFillStyle('blue');
     }
     
+    if (this.model.get('hasSprite')) {
+      var image = new Image();
+      image.src = self.model.getSprite();
+
+      var sprite = new CAAT.SpriteImage();
+      sprite.initialize(image, 1, 1);
+
+      var spriteContainer = new CAAT.Actor().
+        setBounds(0, 0, tileWidth, tileHeight).
+        setBackgroundImage(sprite).
+        setScale(.5, .5).
+        enableEvents(false);
+      
+      tileActorContainer.addChild(spriteContainer);
+    }
+
     var label = new CAAT.TextActor().
-      setBounds(0, tileHeight / 2, tileWidth, 0).
+      setBounds(0, 65, tileWidth, 0).
       setTextAlign('center').
       setBaseline('middle').
+      setTextFillStyle('#fff').
       enableEvents(false).
-      setText(this.model.name).
-      setFont('24px Verdana');
+      setText(this.model.get('name')).
+      setFont('18px Verdana');
     tileActorContainer.addChild(label);
 
     var quantityLabel = new CAAT.TextActor().
-      setBounds(70, 60, 20, 20).
-      setFillStyle('#fff').
-      setTextAlign('center').
-      setTextFillStyle('#000').
-      setBaseline('top').
-      enableEvents(false).
-      setText(this.model.get('quantity'));
-    tileActorContainer.addChild(quantityLabel);
-
-    var idLabel = new CAAT.TextActor().
-      setPosition(10, 10).
-      setTextAlign('center').
+      setPosition(10,10).
+      setTextAlign('right').
       setTextFillStyle('#fff').
       setBaseline('top').
       enableEvents(false).
-      setText('#' + this.model.get('uniqueId'));
+      setText(this.model.get('quantity') + '/' + this.model.get('maxQuantity'));
+    tileActorContainer.addChild(quantityLabel);
+    
+    if (this.model.get('maxQuantity') == this.model.get('quantity')) {
+        quantityLabel.setTextFillStyle('#06ff00');
+    }
+
+    var idLabel = new CAAT.TextActor().
+      setPosition(80, 60).
+      setTextAlign('right').
+      setTextFillStyle('#fff').
+      setBaseline('top').
+      enableEvents(false).
+      setText(this.model.getUniqueId());
     tileActorContainer.addChild(idLabel);
 
-    if (this.model.get('maxQuantity') == this.model.get('quantity')) {
-     var maxLabel = new CAAT.TextActor().
-          setPosition(70, 10).
-          setTextAlign('center').
-          setTextFillStyle('red').
-          setBaseline('top').
-          enableEvents(false).
-          setText('max');
-      tileActorContainer.addChild(maxLabel);
-    }
+
 
     tileActorContainer.mouseUp = function (e) {
 
@@ -120,23 +136,40 @@ game.CAAT.ItemView = Backbone.View.extend({
       }
 
       var max = Math.max(fieldDimensions.x, fieldDimensions.y );
-      var entitiesCollision = new CAAT.QuadTree().create( self.container.AABB.x,self.container.AABB.y, self.container.width, self.container.height, tileActors );
+      var entitiesCollision = new CAAT.QuadTree().create(self.container.AABB.x,self.container.AABB.y, self.container.width, self.container.height, tileActors);
       var collide = entitiesCollision.getOverlappingActors( new CAAT.Rectangle().setBounds(e.screenPoint.x -5, e.screenPoint.y -5, 10, 10));
-      
-      var wasPlaced = false;
-      for (var x in collide) {
 
-        var entity = game.getRegistry().getEntityByCAATId(collide[x].id, game.ModelItem.EntityTypeTile);
-        var tilePos = entity.model.getTilePos();
-        if (game.getField().canPlaceItem(self.model, tilePos.x, tilePos.y)) {
-            game.getField().placeItem(self.model, tilePos.x, tilePos.y);
-            wasPlaced = true;  
+      var wasPlaced = false;
+
+      if (collide.length) {
+
+        var targetEntity = collide[0];
+        var tileEntity = game.getRegistry().getEntityByCAATId(targetEntity.id, game.ModelItem.EntityTypeTile);
+        var tilePos = tileEntity.model.getTilePos();
+
+        if (tileEntity.model.hasItemModel() && tileEntity.model.getItemModel().getUniqueId() == self.model.getUniqueId()) {
+
+            // if the item is placed back on it's own tile, do nothing.
+            wasPlaced = false;
+            return false;
+
+        } else if (tileEntity.model.canPlaceNewItem(self.model)) {
+
+          // move an item to an empty tile
+          game.getField().placeNewItem(self.model, tilePos.x, tilePos.y);
+          return true;
+
+        } else if (tileEntity.model.canAddToItem(self.model)) {
+
+          // add two of the same items together, or add children to a container
+          game.getField().addToItem(self.model, tilePos.x, tilePos.y);
+          return true;
+
         }
         
       }
 
       if (!wasPlaced) {
-        console.log('could not place, reset position', canvasPos.x, canvasPos.y);
         tileActorContainer.setLocation(canvasPos.x, canvasPos.y);
         return false;
       }

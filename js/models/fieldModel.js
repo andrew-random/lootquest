@@ -47,12 +47,12 @@ game.ModelField = Backbone.Model.extend({
 		// todo: init models from local storage
 	},
 
-	canPlaceItem: function (itemModel, posX, posY) {
+	canPlaceNewItem: function (itemModel, posX, posY) {
 		var tileEntity = this.getTileByPos(posX, posY);
-		return tileEntity.canPlaceItem(itemModel);
+		return tileEntity.canPlaceNewItem(itemModel);
 	},
 
-	placeItem: function (itemModel, posX, posY) {
+	placeNewItem: function (itemModel, posX, posY) {
 		// clear old tile
 		if (itemModel.hasTilePos()) {
 			var oldPos 			= itemModel.getTilePos();
@@ -66,9 +66,52 @@ game.ModelField = Backbone.Model.extend({
 		itemModel.setTilePos(posX, posY);
 		
 		var tileModel = this.getTileByPos(posX, posY);
-		tileModel.placeItem(itemModel);
+		tileModel.placeNewItem(itemModel);
 
-		//todo: save to local storage
+		this.save();
+		return true;
+	},
+
+	canAddToItem: function (itemModel) {
+		var tileEntity = this.getTileByPos(posX, posY);
+		return tileEntity.canAddToItem(itemModel);
+	},
+
+	addToItem: function (itemModel, posX, posY) {
+		var tileEntity = this.getTileByPos(posX, posY);
+		tileEntity.addToItem(itemModel);
+
+		// is the new item empty after the addition?
+		if (itemModel.get('quantity') == 0) {
+			
+			// remove duplicate model
+			this.destroyItem(itemModel);
+
+		}
+
+		this.save();
+		return true;
+	},
+
+	placeInRandomTile: function (itemModel) {
+		var tiles = this.tileCollection.filter(function (tileModel) {
+			return tileModel.hasItemModel() === false;
+		});
+		
+		if (tiles.length) {
+			var tilePos = tiles[rand(0, tiles.length - 1)].getTilePos();
+			this.placeNewItem(itemModel, tilePos.x, tilePos.y);
+
+			return true;
+		}
+		return false;
+	},
+
+	getUnplacedLoot: function () {
+		var data = this.itemCollection.filter(function (itemModel) {
+			return itemModel.hasTilePos() === false;
+		});
+		return data;
 	},
 
 	getTileByPos: function (posX, posY) {
@@ -79,7 +122,7 @@ game.ModelField = Backbone.Model.extend({
 
 	getItemByUniqueId: function () {
 		return this.itemCollection.find(function (itemModel) {
-			return itemModel.get('uniqueId') == uniqueId;
+			return itemModel.getUniqueId() == uniqueId;
 		});
 	},
 
@@ -103,11 +146,15 @@ game.ModelField = Backbone.Model.extend({
 
 	destroyItem: function (doomedItemModel) {
 		// remove the view/entity
-		game.getRegistry().removeEntityByUniqueId(doomedItemModel.get('uniqueId'));
+		game.getRegistry().removeEntityByUniqueId(doomedItemModel.getUniqueId(), game.ModelItem.EntityTypeItem);
 
 		// remove the item model
 		this.itemCollection.remove(doomedItemModel);
 		
+	},
+
+	save: function () {
+		// DB STUFF HERE
 	}
 
 });

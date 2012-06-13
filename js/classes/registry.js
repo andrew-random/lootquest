@@ -25,7 +25,7 @@ game.registry = {
 		}
 		var count = this.entities[entityType].length;
 		while (count--) {
-			if (this.entities[entityType][count].get('uniqueId') == entityId) {
+			if (this.entities[entityType][count].getUniqueId() == entityId) {
 				return this.entities[entityType][count];
 			}
 		}
@@ -98,13 +98,15 @@ game.registry = {
 	_removeEntityByUniqueIdAndType: function (uniqueId, entityType) {
 		var count = this.entities[entityType].length;
 		while (count--) {
-			if (this.entities[entityType][count].model.get('uniqueId') == uniqueId) {
+
+			if (this.entities[entityType][count].model.getUniqueId() == uniqueId) {
 
 				// remove the actor from the scene
 				this.entities[entityType][count].expireActor();
 
 				// remove the entity from the registry
 				this.entities[entityType].splice(count, 1);
+
 				return true;
 			}
 		}

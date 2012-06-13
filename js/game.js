@@ -1,6 +1,6 @@
 /**
 	TODO:
-
+	- find out why multiple placeItems are called on some drops
 	- tiny view for each tile in the garden view
 	- local storage?
 	- local DB?
@@ -20,6 +20,7 @@ var game = {
 
 	CAAT 			: [],
  	userModel		: null,
+ 	maxUnplacedLoot	: 4,
 
 	initialize: function () {
 
@@ -38,14 +39,27 @@ var game = {
 	},
 
 	adventureInEnvironment: function (environmentModel) {
-		var environment = new game.ModelEnvironment();
+		var fieldModel		= this.getField();
+		var environment 	= new game.ModelEnvironment();
+
+		var unplacedLoot 	= fieldModel.getUnplacedLoot().length;
+
 		var maxLoot = rand(1, 5);
 		for (var x = 0; x <= maxLoot; x++) {
+
+			if (unplacedLoot == this.maxUnplacedLoot) {
+				continue;
+			}
+			unplacedLoot++;
+
 			var randomItem = environment.getRandomLoot();
-			this.fieldModel.itemCollection.push(randomItem);
+			fieldModel.itemCollection.push(randomItem);
+			if (randomItem.get('type') == 'gold') {
+				fieldModel.placeInRandomTile(randomItem);
+			}
 
 			// notify views
-			this.fieldModel.trigger("newLoot", randomItem, this);
+			fieldModel.trigger("newLoot", randomItem, this);
 		}
 	},
 
@@ -59,6 +73,6 @@ var game = {
 
 	getRegistry: function () {
 		return this.registry;
-	}
+	},
 
 }
