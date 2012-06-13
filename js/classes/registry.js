@@ -10,7 +10,12 @@
 game.registry = {
 
 	scenes: [],
-	entities: [],
+	entities: {},
+
+	initialize: function () {
+		this.entities[game.ModelItem.EntityTypeTile] = [];
+		this.entities[game.ModelItem.EntityTypeItem] = [];
+	},
 
 	addEntity: function (entityType, entity) {
 		if (typeof this.entities[entityType] == 'undefined') {
@@ -19,13 +24,30 @@ game.registry = {
 		this.entities[entityType].push(entity);
 	},
 
-	getEntityByTypeAndId: function (entityType, entityId) {
+	getEntityByUniqueId: function (uniqueId, entityType) {
+		if (entityType) {
+			return this._getEntityByUniqueIdAndType(uniqueId, entityType);
+		} else {
+			for (var entityType in this.entities) {
+				var entity = _getEntityByUniqueIdAndType(uniqueId, entityType);
+				if (entity) {
+					return entity;
+				}
+			}
+		}
+	},
+	_getEntityByUniqueIdAndType: function (uniqueId, entityType) {
 		if (typeof this.entities[entityType] == 'undefined') {
 			return false;
 		}
 		var count = this.entities[entityType].length;
 		while (count--) {
-			if (this.entities[entityType][count].getUniqueId() == entityId) {
+			// does model not have a unique id method? 
+			// Fail right out.
+			if (typeof this.entities[entityType][count].model.getUniqueId == 'undefined') {
+				return false;
+			}
+			if (this.entities[entityType][count].model.getUniqueId() == uniqueId) {
 				return this.entities[entityType][count];
 			}
 		}
@@ -64,8 +86,9 @@ game.registry = {
 	},
 
 	getEntitiesByType: function (entityType) {
-		if (this.entities[entityType] == 'undefined') {
-			throw new Exception('No entities of that type');
+		if (typeof this.entities[entityType] == 'undefined') {
+			return [];
+			//throw 'No entities of type ' + entityType;
 		}
 		return this.entities[entityType];
 	},
@@ -98,6 +121,12 @@ game.registry = {
 	_removeEntityByUniqueIdAndType: function (uniqueId, entityType) {
 		var count = this.entities[entityType].length;
 		while (count--) {
+
+			// does model not have a unique id method? 
+			// Fail right out.
+			if (typeof this.entities[entityType][count].model.getUniqueId == 'undefined') {
+				return false;
+			}
 
 			if (this.entities[entityType][count].model.getUniqueId() == uniqueId) {
 

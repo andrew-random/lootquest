@@ -27,14 +27,16 @@ game.ModelEnvironment = Backbone.Model.extend({
 				maxQuantity:5,
 				hasSprite:true
 			}));
-			/*possibleLoot.push(new game.ModelItem({
-				name:'Box', 
-				type:'box', 
+
+			possibleLoot.push(new game.ModelItem({
+				name:'Chest', 
+				type:'treasure_chest', 
 				quantity:1,
-				maxQuantity:1,
-				maxChildItems:2,
+				childrenTypes:['gold'],
+				maxQuantity:300,
+				hasSprite:true,
 				isContainer:true
-			}));*/
+			}));
 
 			return possibleLoot[rand(0, possibleLoot.length -1 )];
 		}

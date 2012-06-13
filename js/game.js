@@ -24,6 +24,9 @@ var game = {
 
 	initialize: function () {
 
+		// init entity registry
+		this.registry.initialize();
+
 		// todo: load user details from wherever
 		this.userModel = new game.ModelUser();
 
@@ -54,13 +57,14 @@ var game = {
 
 			var randomItem = environment.getRandomLoot();
 			fieldModel.itemCollection.push(randomItem);
-			if (randomItem.get('type') == 'gold') {
+			//if (randomItem.get('type') == 'gold') {
 				fieldModel.placeInRandomTile(randomItem);
-			}
+			//}
 
 			// notify views
 			fieldModel.trigger("newLoot", randomItem, this);
 		}
+		fieldModel.trigger("adventureComplete", null, this);
 	},
 
 	getUser: function () {

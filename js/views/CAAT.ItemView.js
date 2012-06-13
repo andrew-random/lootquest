@@ -5,6 +5,7 @@ game.CAAT.ItemView = Backbone.View.extend({
 
   initialize: function (options) {
     this.container = options.container;
+    this.actor     = null;
 
     //this.model.on('change change:tilePos', this.redraw, this);
     this.model.on('change change:quantity', this.redraw, this);
@@ -23,14 +24,26 @@ game.CAAT.ItemView = Backbone.View.extend({
   },
 
   getCanvasPos: function () {
-    var tilePos = this.model.getTilePos();
-    if (tilePos) {
+   
+    if (this.model.hasTilePos()) {
+      var tilePos = this.model.getTilePos();
       var tileEntity      = game.getRegistry().getTileEntityByPos(tilePos.x, tilePos.y);
       var tileEntityActor = tileEntity.getActor();
       return {
         x: tileEntityActor.x + tileEntity.container.x,
         y: tileEntityActor.y + tileEntity.container.y,
-      }
+      };
+
+    } else if (this.model.hasParent()) {
+
+      var tilePos = this.model.getParentModel().getTilePos();
+      var tileEntity      = game.getRegistry().getTileEntityByPos(tilePos.x, tilePos.y);
+      var tileEntityActor = tileEntity.getActor();
+      return {
+        x: tileEntityActor.x + tileEntity.container.x,
+        y: tileEntityActor.y + tileEntity.container.y,
+      };
+
 
     } else {
       var allItems = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeItem);
@@ -55,6 +68,7 @@ game.CAAT.ItemView = Backbone.View.extend({
   },
 
   render: function () {
+
     var self        = this;
     var tileWidth   = game.CAAT.SceneGardenView.tileWidth;
     var tileHeight  = game.CAAT.SceneGardenView.tileHeight;
@@ -69,10 +83,14 @@ game.CAAT.ItemView = Backbone.View.extend({
       enableDrag(true);
   
     if (this.model.isContainer()) {
+    
       tileActorContainer.setFillStyle('navyblue')
+    
     } else if (this.model.isChild()) {
-      tileActorContainer.setSize(30, 30);
+
       tileActorContainer.setFillStyle('lightblue');
+      tileActorContainer.setScale(.3, .3);
+      tileActorContainer.enableEvents(false);
     }
     
     if (this.model.get('hasSprite')) {
@@ -106,9 +124,14 @@ game.CAAT.ItemView = Backbone.View.extend({
       setTextAlign('right').
       setTextFillStyle('#fff').
       setBaseline('top').
-      enableEvents(false).
-      setText(this.model.get('quantity') + '/' + this.model.get('maxQuantity'));
+      enableEvents(false);
     tileActorContainer.addChild(quantityLabel);
+
+    if (this.model.isContainer()) {
+      quantityLabel.setText(this.model.getContainedQuantity() + '/' + this.model.getMaxContainedQuantity());
+    } else {
+      quantityLabel.setText(this.model.get('quantity') + '/' + this.model.get('maxQuantity'));
+    }
     
     if (this.model.get('maxQuantity') == this.model.get('quantity')) {
         quantityLabel.setTextFillStyle('#06ff00');
@@ -130,9 +153,13 @@ game.CAAT.ItemView = Backbone.View.extend({
       var fieldDimensions = game.getField().getTotalFieldDimensions();
 
       var tileActors = [];
-      var tileEntities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeTile);
-      for (var x in tileEntities) {
-          tileActors.push(tileEntities[x].getActor());
+      try {
+        var tileEntities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeTile);
+        for (var x in tileEntities) {
+            tileActors.push(tileEntities[x].getActor());
+        }
+      } catch (exception) {
+        // do nothing
       }
 
       var max = Math.max(fieldDimensions.x, fieldDimensions.y );
@@ -149,21 +176,27 @@ game.CAAT.ItemView = Backbone.View.extend({
 
         if (tileEntity.model.hasItemModel() && tileEntity.model.getItemModel().getUniqueId() == self.model.getUniqueId()) {
 
-            // if the item is placed back on it's own tile, do nothing.
-            wasPlaced = false;
-            return false;
+          // if the item is placed back on it's own tile, do nothing.
+          wasPlaced = false;
 
         } else if (tileEntity.model.canPlaceNewItem(self.model)) {
 
           // move an item to an empty tile
           game.getField().placeNewItem(self.model, tilePos.x, tilePos.y);
-          return true;
+          wasPlaced = true;
 
         } else if (tileEntity.model.canAddToItem(self.model)) {
 
           // add two of the same items together, or add children to a container
           game.getField().addToItem(self.model, tilePos.x, tilePos.y);
-          return true;
+
+          var containerItemModel = game.getRegistry().getEntityByUniqueId(tileEntity.model.getItemModel().getUniqueId(), game.ModelItem.EntityTypeItem);
+          if (containerItemModel) {
+            // redraw container
+            containerItemModel.redraw();
+          }
+
+          wasPlaced = true;
 
         }
         
@@ -171,7 +204,21 @@ game.CAAT.ItemView = Backbone.View.extend({
 
       if (!wasPlaced) {
         tileActorContainer.setLocation(canvasPos.x, canvasPos.y);
-        return false;
+      }
+
+      // Re-draw all children of this element
+      if (self.model.hasChildren()) {
+
+        var childUniqueIds = self.model.getChildren();
+        
+        var count = childUniqueIds.length;
+        while (count--) {
+          var childEntity = game.getRegistry().getEntityByUniqueId(childUniqueIds[count], game.ModelItem.EntityTypeItem);
+          if (childEntity) {
+            childEntity.redraw();
+          }
+        }
+
       }
       
     }

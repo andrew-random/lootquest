@@ -10,6 +10,7 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 
 		// events
 		this.model.on('newLoot', this.newLoot, this);
+		this.model.on('adventureComplete', this.adventureComplete, this);
 
 		this.director = options.director;
 
@@ -17,7 +18,7 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 		this.scene.setFillStyle('#ccc');
 
 		this.tileContainer = new CAAT.ActorContainer().
-		  setBounds(30, 200, 580, 480).setFillStyle('green');
+		  setBounds(30, 100, 580, 480).setFillStyle('green');
 		this.scene.addChild(this.tileContainer);
 
 		this.model.getTileCollection().each(function (tileModel) {
@@ -46,6 +47,26 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 	    adventureButton.addChild(adventureLabel);
 
 		this.scene.addChild(adventureButton);
+
+		/*this.scene.createTimer(
+            0,
+            Number.MAX_VALUE,
+            function(scene_time, timer_time, timertask_instance)  {   // timeout
+            	
+            },
+            function(scene_time, timer_time, timertask_instance)  {   // tick
+            	try {
+	      			var entities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeItem);
+	            	var count = entities.length;
+	            	while (count--) {
+	            		entities[count].redraw();
+	            	}
+            	} catch (exception) {
+            	} 
+            },
+            function(scene_time, timer_time, timertask_instance)  {   // cancel
+            }
+    	)*/
 		
 	},
 
@@ -54,8 +75,14 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 				container 	: this.scene, 
 				model 		: itemModel
 		});
-		itemView.render();
 		game.getRegistry().addEntity(game.ModelItem.EntityTypeItem, itemView);
+	},
+	adventureComplete: function () {
+		var entities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeItem);
+		var count = entities.length;
+		while (count--) {
+			entities[count].redraw();
+		}
 	},
 
 	render: function() {

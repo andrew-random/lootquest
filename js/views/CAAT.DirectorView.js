@@ -43,7 +43,6 @@ game.CAAT.DirectorView = Backbone.View.extend({
     } else {
       this.setScene(this.SCENE_DEFAULT);
     }
-
     
     // set 20 fps animation
     CAAT.loop(20);

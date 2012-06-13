@@ -69,11 +69,11 @@ game.ModelTile = Backbone.Model.extend({
 			return this.getItemModel().addToItem(itemModel);
 		},
 
-		canRemoveItem: function (itemModel) {
+		canRemoveItemModel: function (itemModel) {
 			return true;
 		},
 
-		removeItem: function (itemModel) {
+		removeItemModel: function (itemModel) {
 			this.setItemModel(null);
 		}
 });

@@ -55,10 +55,11 @@ game.ModelField = Backbone.Model.extend({
 	placeNewItem: function (itemModel, posX, posY) {
 		// clear old tile
 		if (itemModel.hasTilePos()) {
+
 			var oldPos 			= itemModel.getTilePos();
 			var oldTileModel 	= this.getTileByPos(oldPos.x, oldPos.y);
-			if (oldTileModel.canRemoveItem(itemModel)) {
-				oldTileModel.removeItem(itemModel);
+			if (oldTileModel.canRemoveItemModel(itemModel)) {
+				oldTileModel.removeItemModel(itemModel);
 			}
 		}
 
@@ -78,12 +79,13 @@ game.ModelField = Backbone.Model.extend({
 	},
 
 	addToItem: function (itemModel, posX, posY) {
+
 		var tileEntity = this.getTileByPos(posX, posY);
 		tileEntity.addToItem(itemModel);
 
 		// is the new item empty after the addition?
 		if (itemModel.get('quantity') == 0) {
-			
+
 			// remove duplicate model
 			this.destroyItem(itemModel);
 
@@ -91,6 +93,11 @@ game.ModelField = Backbone.Model.extend({
 
 		this.save();
 		return true;
+	},
+
+	clearTile: function (posX, posY) {
+		var tileEntity = this.getTileByPos(posX, posY);
+		tileEntity.removeItemModel();
 	},
 
 	placeInRandomTile: function (itemModel) {
@@ -109,7 +116,7 @@ game.ModelField = Backbone.Model.extend({
 
 	getUnplacedLoot: function () {
 		var data = this.itemCollection.filter(function (itemModel) {
-			return itemModel.hasTilePos() === false;
+			return itemModel.hasTilePos() === false && !itemModel.hasParent();
 		});
 		return data;
 	},
@@ -120,10 +127,11 @@ game.ModelField = Backbone.Model.extend({
 		});
 	},
 
-	getItemByUniqueId: function () {
+	getItemByUniqueId: function (uniqueId) {
 		return this.itemCollection.find(function (itemModel) {
 			return itemModel.getUniqueId() == uniqueId;
 		});
+		return false;
 	},
 
 	getMinTileWidth: function () {
@@ -145,6 +153,14 @@ game.ModelField = Backbone.Model.extend({
 	},
 
 	destroyItem: function (doomedItemModel) {
+
+		// update the tile
+		if (doomedItemModel.hasTilePos()) {
+			var tilePos = doomedItemModel.getTilePos();
+			var tileEntity = this.getTileByPos(tilePos.x, tilePos.y);
+			tileEntity.removeItemModel();
+		}
+
 		// remove the view/entity
 		game.getRegistry().removeEntityByUniqueId(doomedItemModel.getUniqueId(), game.ModelItem.EntityTypeItem);
 

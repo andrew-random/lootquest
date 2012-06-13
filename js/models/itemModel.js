@@ -14,21 +14,35 @@ game.ModelItem = Backbone.Model.extend({
 			categories	: [],
 			tilePos		: null,			// x any y coords on tile field,
 			uniqueId    : null,			// unique id to refer to this item
+	
+			footprint   : null,			// array of tiles this item takes up
+
 			parentId	: null,			// parent ModelItem
 			isContainer : null,			// whether this ModelItem can hold children
+			children    : [],			// array of unique ids of child items
 		},
 		
-		children	: null,		// collectionItem of child ModelItems ( swords, gold pieces, etc. ).
-		footprint   : null,		// array of tiles this item takes up
 
 		initialize: function (options) {
 			if (!options.uniqueId) {
 				options.uniqueId = getHash(3);
 			}
 			this.set('uniqueId', options.uniqueId);
+
+			if (!options.children) {
+				options.children = [];
+			}
+			this.setChildren(options.children);
 			return this;
 		},
 
+		getUniqueId: function () {
+			return this.get('uniqueId');
+		},
+
+		/**
+		 * 	Tile Position methods
+		 */
 		setTilePos: function (tileX, tileY) {
 			this.set('tilePos', {x: tileX, y: tileY});
 			return this;
@@ -36,27 +50,26 @@ game.ModelItem = Backbone.Model.extend({
 		getTilePos: function () {
 			return this.get('tilePos');
 		},
-
+		clearTilePos: function () {
+			return this.set('tilePos', null);
+		},
 		hasTilePos: function () {
 			return this.get('tilePos') != null;
 		},
 
-		setParentId: function (parentItemId) {
-			this.set('parentId', parentItemId);
-			return this;
-		},
-		getParentId: function () {
-			return this.get('parentId');
-		},
-
-		getUniqueId: function () {
-			return this.get('uniqueId');
-		},
-
 		canAddToItem: function (newItemModel) {
-			// is this the same item?
-			if (this.get('type') == newItemModel.get('type')) {
+			
+			if (newItemModel.isContainer()) {
+				
+				// containers can never be added to each other
+				// that way lies madness
+				throw 'Container cannot hold container.';
+				return false;
 
+			} else if (this.get('type') == newItemModel.get('type')) {
+				
+				// is this the same item?
+				
 				// is this item already at max quantity?
 				if (this.get('maxQuantity') != this.get('quantity')) {
 					return true;
@@ -65,9 +78,21 @@ game.ModelItem = Backbone.Model.extend({
 				}
 			
 			} else if (this.isContainer()) {
-				//is this object a container?
-				
-				//  and can it contain items of this type?
+
+				if (!this.hasTilePos()) {
+					throw 'Container has not been placed on the field.';
+				}
+
+				if (newItemModel.getParentId() == this.getUniqueId()) {
+					throw 'Already in this container';
+				}
+
+				if (this.getMaxContainedQuantity() == this.getContainedQuantity()) {
+					throw 'Container is full.';
+				}
+
+				// is this object a container?
+				// and can it contain items of this type?
 				if (this.canContainType(newItemModel.get('type'))) {
 					return true;
 				} else {
@@ -81,9 +106,14 @@ game.ModelItem = Backbone.Model.extend({
 		},
 
 		canContainType: function (newItemType) {
-			return true;
-			//todo: validate against types
-			//return newItemType == 
+			var possibleTypes = this.get('childrenTypes');
+			var count = possibleTypes.length;
+			while (count--) {
+				if (possibleTypes[count] == newItemType) {
+					return true;
+				}
+			}
+			return false;
 		},
 
 		addToItem: function (newItemModel) {
@@ -98,7 +128,6 @@ game.ModelItem = Backbone.Model.extend({
 					// remove quantity from old model
 					newItemModel.set('quantity', 0);
 
-
 				} else {
 					
 					// update the new item
@@ -112,8 +141,14 @@ game.ModelItem = Backbone.Model.extend({
 
 			} else {
 
+				if (newItemModel.hasTilePos()) {
+					var tilePos = newItemModel.getTilePos();
+					game.getField().clearTile(tilePos.x, tilePos.y);
+				}
+
 				newItemModel.setParentId(this.get('uniqueId'));
-				this.addChild(newItemModel);
+				newItemModel.clearTilePos();
+				this.addChild(newItemModel.getUniqueId());
 
 			}
 		},
@@ -125,13 +160,27 @@ game.ModelItem = Backbone.Model.extend({
 		/**
 		 * Child and container functions
 		 */
+		setParentId: function (parentItemId) {
+			this.set('parentId', parentItemId);
+			return this;
+		},
+		getParentId: function () {
+			return this.get('parentId');
+		},
 
-		addChild: function (itemModel) {
-			this.children.push(itemModel);
+		hasParent: function () {
+			return this.getParentId() !== null;
+		},
+		getParentModel: function () {
+			return game.getField().getItemByUniqueId(this.getParentId());
+		},
+
+		addChild: function (childUniqueId) {
+			this.get('children').push(childUniqueId);
 		},
 
 		hasChildren: function () {
-			return this.children.length !== 0;	
+			return this.get('children').length !== 0;	
 		},
 
 		removeChild: function () {
@@ -139,16 +188,39 @@ game.ModelItem = Backbone.Model.extend({
 		},
 
 		getChildren: function () {
-			return this.children;
+			return this.get('children');
+		},
+		setChildren: function (data) {
+			this.set('children', data);
 		},
 
 		isChild: function () {
-			return this.getParentId();
+			return this.getParentId() !== null;
 		},
 
 		isContainer: function () {
 			return this.get('isContainer') === true;
-		}
+		},
+
+		getContainedQuantity: function () {
+			var children = this.getChildren();
+			var count = children.length;
+			var total = 0;
+			while (count--) {
+
+				var childItem = game.getField().getItemByUniqueId(children[count]);
+				//hack: why the hell aren't children object specific?
+				if (childItem.getParentId() == this.getUniqueId()) {
+					total += childItem.get('quantity');
+				}
+				
+			}
+			return total;
+		},
+
+		getMaxContainedQuantity: function () {
+			return this.get('maxQuantity');
+		},
 
 });
 game.ModelItem.CATEGORY_EQUIPMENT 	= 'equipment';
