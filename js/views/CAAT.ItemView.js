@@ -46,7 +46,7 @@ game.CAAT.ItemView = Backbone.View.extend({
 
 
     } else {
-      var allItems = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeItem);
+      var allItems = game.getRegistry().getEntitiesByType(game.EntityTypeItem);
       var leftOffset = 0;
       for (var x in allItems) {
         if (!allItems[x].model.hasTilePos()) {
@@ -81,9 +81,8 @@ game.CAAT.ItemView = Backbone.View.extend({
       setBounds(canvasPos.x, canvasPos.y, tileWidth, tileHeight).
       setFillStyle('#515151').
       enableDrag(true);
-  
-    if (this.model.isChild()) {
-
+        
+    if (!this.model.isHeroBaseItem() && this.model.isChild()) {
       tileActorContainer.setFillStyle('lightblue');
       tileActorContainer.setScale(.5, .5);
       tileActorContainer.enableEvents(false);
@@ -156,7 +155,7 @@ game.CAAT.ItemView = Backbone.View.extend({
 
       var tileActors = [];
       try {
-        var tileEntities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeTile);
+        var tileEntities = game.getRegistry().getEntitiesByType(game.EntityTypeTile);
         for (var x in tileEntities) {
             tileActors.push(tileEntities[x].getActor());
         }
@@ -173,7 +172,7 @@ game.CAAT.ItemView = Backbone.View.extend({
       if (collide.length) {
 
         var targetEntity = collide[0];
-        var tileEntity = game.getRegistry().getEntityByCAATId(targetEntity.id, game.ModelItem.EntityTypeTile);
+        var tileEntity = game.getRegistry().getEntityByCAATId(targetEntity.id, game.EntityTypeTile);
         var tilePos = tileEntity.model.getTilePos();
 
         if (tileEntity.model.hasItemModel() && tileEntity.model.getItemModel().getUniqueId() == self.model.getUniqueId()) {
@@ -192,7 +191,7 @@ game.CAAT.ItemView = Backbone.View.extend({
           // add two of the same items together, or add children to a container
           game.getField().addToItem(self.model, tilePos.x, tilePos.y);
 
-          var containerItemModel = game.getRegistry().getEntityByUniqueId(tileEntity.model.getItemModel().getUniqueId(), game.ModelItem.EntityTypeItem);
+          var containerItemModel = game.getRegistry().getEntityByUniqueId(tileEntity.model.getItemModel().getUniqueId(), game.EntityTypeItem);
           if (containerItemModel) {
             // redraw container
             containerItemModel.redraw();
@@ -211,16 +210,23 @@ game.CAAT.ItemView = Backbone.View.extend({
       // Re-draw all children of this element
       if (self.model.hasChildren()) {
 
-        var childUniqueIds = self.model.getChildren();
+          var childUniqueIds = self.model.getChildren();
 
-        var count = childUniqueIds.length;
-        while (count--) {
-          var childEntity = game.getRegistry().getEntityByUniqueId(childUniqueIds[count], game.ModelItem.EntityTypeItem);
-          if (childEntity) {
-            childEntity.redraw();
+          var count = childUniqueIds.length;
+          while (count--) {
+          var childEntity = game.getRegistry().getEntityByUniqueId(childUniqueIds[count], game.EntityTypeItem);
+            if (childEntity) {
+              childEntity.redraw();
+            }
           }
-        }
+      }
 
+      // Re-draw heroes
+      if (self.model.isHeroBaseItem()) {
+        var heroEntity = game.getRegistry().getEntityByUniqueId(self.model.getHeroUniqueId(), game.EntityTypeHero);
+        if (heroEntity) {
+          heroEntity.redraw();
+        }
       }
       
     }

@@ -17,8 +17,7 @@
 **/
 
 var game = {
-
-	CAAT 			: [],
+	
  	userModel		: null,
  	maxUnplacedLoot	: 4,
 
@@ -28,10 +27,17 @@ var game = {
 		this.registry.initialize();
 
 		// todo: load user details from wherever
-		this.userModel = new game.ModelUser();
+		this.userModel 	= new game.ModelUser();
 
 		// todo: load gameData from local SQLite goodness
 		this.fieldModel = new game.ModelField();
+
+		// todo: load herodata from DB
+		this.heroController.initialize();
+
+		if (true) {
+			this.initNewGame();
+		}
 
 		// init CAAT instance
 		this.director = new game.CAAT.DirectorView({
@@ -41,9 +47,10 @@ var game = {
 		
 	},
 
-	adventureInEnvironment: function (environmentModel) {
+	adventureInEnvironment: function (heroModel, environmentModel) {
 		var fieldModel		= this.getField();
 		var environment 	= new game.ModelEnvironment();
+		heroModel.setLastAdventureTime(new Date().getTime());
 
 		var totalLoot 		= fieldModel.itemCollection.filter(function (itemModel) {
 			return itemModel.hasTilePos();
@@ -59,13 +66,31 @@ var game = {
 			totalLoot++;
 
 			var randomItem = environment.getRandomLoot();
-			fieldModel.itemCollection.push(randomItem);
+			fieldModel.addItemModel(randomItem);
 			fieldModel.placeInRandomTile(randomItem);			
 
 			// notify views
 			fieldModel.trigger("newLoot", randomItem, this);
 		}
 		fieldModel.trigger("adventureComplete", null, this);
+	},
+
+	initNewGame: function () {
+
+		var heroThrone = new game.ModelHeroBaseItem();
+		this.fieldModel.addItemModel(heroThrone);
+
+		var firstHero = new game.ModelHero();
+
+		// heroes are tied to a hero base item
+		firstHero.setParentId(heroThrone.getUniqueId());
+
+		// items are tied right back to the hero
+		heroThrone.setHeroUniqueId(firstHero.getUniqueId());
+
+		this.fieldModel.placeNewItem(heroThrone, 0, 0);
+		game.getHeroController().addHero(firstHero);
+
 	},
 
 	getUser: function () {
@@ -80,4 +105,24 @@ var game = {
 		return this.registry;
 	},
 
+	//hack
+	getHero: function () {
+		return this.getHeroes().find(function () { 
+			return true;
+		});
+	},
+
+	getHeroController: function () {
+		return this.heroController;
+	},
+
+	getHeroes: function () {
+		return this.heroController.getHeroes();
+	},
+
+
 }
+game.CAAT = [];
+game.EntityTypeTile		= 'tile';
+game.EntityTypeItem		= 'item';
+game.EntityTypeHero		= 'hero';

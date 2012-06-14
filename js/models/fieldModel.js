@@ -34,6 +34,9 @@ game.ModelField = Backbone.Model.extend({
 			}
 		}
 	},
+	getItemCollection: function () {
+		return this.itemCollection;
+	},
 
 	getTileCollection: function () {
 		return this.tileCollection;
@@ -42,6 +45,14 @@ game.ModelField = Backbone.Model.extend({
 	initItemCollection: function () {
 		this.itemCollection = new game.collectionItem();
 		// todo: init models from local storage
+	},
+
+	addItemModel: function (itemModel) {
+		this.itemCollection.push(itemModel);
+	},
+
+	removeItemModel: function (doomedItemModel) {
+		this.itemCollection.remove(doomedItemModel);
 	},
 
 	canPlaceNewItem: function (itemModel, posX, posY) {
@@ -162,7 +173,7 @@ game.ModelField = Backbone.Model.extend({
 		game.getRegistry().removeEntityByUniqueId(doomedItemModel.getUniqueId(), game.ModelItem.EntityTypeItem);
 
 		// remove the item model
-		this.itemCollection.remove(doomedItemModel);
+		this.removeItemModel(doomedItemModel);
 		
 	},
 

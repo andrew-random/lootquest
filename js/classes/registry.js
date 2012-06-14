@@ -13,8 +13,9 @@ game.registry = {
 	entities: {},
 
 	initialize: function () {
-		this.entities[game.ModelItem.EntityTypeTile] = [];
-		this.entities[game.ModelItem.EntityTypeItem] = [];
+		this.entities[game.EntityTypeTile] = [];
+		this.entities[game.EntityTypeItem] = [];
+		this.entities[game.EntityTypeHero] = [];
 	},
 
 	addEntity: function (entityType, entity) {
@@ -94,7 +95,7 @@ game.registry = {
 	},
 
 	getTileEntityByPos: function (posX, posY) {
-		var entityType = game.ModelItem.EntityTypeTile;
+		var entityType = game.EntityTypeTile;
 		var count = this.entities[entityType].length;
 		while (count--) {
 			if (this.entities[entityType][count].model.hasTilePos(posX, posY)) {

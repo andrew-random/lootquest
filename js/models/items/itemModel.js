@@ -24,8 +24,11 @@ game.ModelItem = Backbone.Model.extend({
 		
 
 		initialize: function (options) {
+			if (!options) {
+				options = {};
+			}
 			if (!options.uniqueId) {
-				options.uniqueId = getHash(3);
+				options.uniqueId = getHash(5);
 			}
 			this.set('uniqueId', options.uniqueId);
 
@@ -68,8 +71,13 @@ game.ModelItem = Backbone.Model.extend({
 
 			} else if (this.get('type') == newItemModel.get('type')) {
 				
-				// is this the same item?
-				
+				// is the new item already maxed?
+				// if so, it can't possibly fit here.
+				if (newItemModel.get('maxQuantity') == newItemModel.get('quantity')) {
+					throw 'New item is already max quantity.';
+					return false;
+				}
+
 				// is this item already at max quantity?
 				if (this.get('maxQuantity') != this.get('quantity')) {
 					return true;
@@ -183,7 +191,7 @@ game.ModelItem = Backbone.Model.extend({
 		},
 
 		getSprite: function () {
-			return 'images/' + this.get('type') + '.png';
+			return 'images/items/' + this.get('type') + '.png';
 		},
 
 		/**
@@ -272,9 +280,15 @@ game.ModelItem = Backbone.Model.extend({
 			return this.get('maxQuantity');
 		},
 
+		isHeroBaseItem: function () {
+			return this instanceof game.ModelHeroBaseItem;
+		},
+
+		isContainerItem: function () {
+			return this instanceof game.ModelContainerItem;
+		}
+
 });
 game.ModelItem.CATEGORY_EQUIPMENT 	= 'equipment';
 game.ModelItem.CATEGORY_DECOR 		= 'decor';
 game.ModelItem.CATEGORY_CRAFTING 	= 'crafting';
-game.ModelItem.EntityTypeTile		= 'tile';
-game.ModelItem.EntityTypeItem		= 'item';

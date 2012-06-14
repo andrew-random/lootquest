@@ -21,20 +21,47 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 		  setBounds(30, 100, 580, 480).setFillStyle('green');
 		this.scene.addChild(this.tileContainer);
 
+		// add all tiles as entities
 		this.model.getTileCollection().each(function (tileModel) {
 			var tileView = new game.CAAT.TileView({
 				container 	: this.tileContainer, 
 				model 		: tileModel
 			});
 			tileView.render();
-			game.getRegistry().addEntity(game.ModelItem.EntityTypeTile, tileView);
+			game.getRegistry().addEntity(game.EntityTypeTile, tileView);
+		}, this);
+
+		// add existing items as entities
+		this.model.getItemCollection().each(function (itemModel) {
+			var itemView = new game.CAAT.ItemView({
+				container 	: this.scene, 
+				model 		: itemModel
+			});
+			itemView.redraw();
+			game.getRegistry().addEntity(game.EntityTypeItem, itemView);
+		}, this);
+
+		// add existing items as entities
+		game.getHeroes().each(function (heroModel) {
+			var heroView = new game.CAAT.HeroView({
+				container 	: this.scene, 
+				model 		: heroModel
+			});
+			heroView.redraw();
+			game.getRegistry().addEntity(game.EntityTypeHero, heroView);
 		}, this);
 
 		var adventureButton = new CAAT.ActorContainer().setBounds(500, 20, 100, 40).setFillStyle('#eee');
 		adventureButton.mouseUp = function () {
-		
-			// adventure!
-			game.adventureInEnvironment(new game.ModelEnvironment());
+			var hero = game.getHero()
+			if (hero.canAdventure()) {
+				// adventure!
+				game.adventureInEnvironment(hero, new game.ModelEnvironment());
+
+			}
+
+			adventureCountDown.setText(hero.getAdventureCooldownSecondsRemaining());
+			
 
 		}
 		var adventureLabel = new CAAT.TextActor().
@@ -46,6 +73,15 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 	      setText('ADVENTURE');
 	    adventureButton.addChild(adventureLabel);
 
+	    var adventureCountDown = new CAAT.TextActor().
+	      setBounds(27, 30, 20, 20).
+	      setTextAlign('center').
+	      setTextFillStyle('#333').
+	      setBaseline('top').
+	      enableEvents(false).
+	      setText('Ready');
+	    adventureButton.addChild(adventureCountDown);
+
 		this.scene.addChild(adventureButton);
 
 		/*this.scene.createTimer(
@@ -56,7 +92,7 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
             },
             function(scene_time, timer_time, timertask_instance)  {   // tick
             	try {
-	      			var entities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeItem);
+	      			var entities = game.getRegistry().getEntitiesByType(game.EntityTypeItem);
 	            	var count = entities.length;
 	            	while (count--) {
 	            		entities[count].redraw();
@@ -75,10 +111,10 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 				container 	: this.scene, 
 				model 		: itemModel
 		});
-		game.getRegistry().addEntity(game.ModelItem.EntityTypeItem, itemView);
+		game.getRegistry().addEntity(game.EntityTypeItem, itemView);
 	},
 	adventureComplete: function () {
-		var entities = game.getRegistry().getEntitiesByType(game.ModelItem.EntityTypeItem);
+		var entities = game.getRegistry().getEntitiesByType(game.EntityTypeItem);
 		var count = entities.length;
 		while (count--) {
 			entities[count].redraw();

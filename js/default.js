@@ -32,6 +32,22 @@ function getHash(length){
     return s;
 }
 
+function formatSecondsRemaining(date) {
+    var secondMultiplier = 1000;
+    var minuteMultiplier = secondMultiplier * 60;
+    var hourMultiplier = minuteMultiplier * 60;
+
+    var hours = Math.floor(date / hourMultiplier);
+    var remaining = date - hours * hourMultiplier;
+    var minutes = Math.floor(remaining / minuteMultiplier);
+    remaining = remaining - minutes * minuteMultiplier;
+    var seconds = Math.floor(remaining / secondMultiplier);
+    if (minutes < 10)
+            minutes = "0" + minutes;
+    if (seconds < 10)
+            seconds = "0" + seconds;
+    return hours + ":" + minutes + ":" + seconds;
+}
 function getWeightedRandom(data) {
 
     var totalWeight     = 0;
