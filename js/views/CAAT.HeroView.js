@@ -1,30 +1,15 @@
-game.CAAT.HeroView = Backbone.View.extend({
+game.CAAT.HeroView = game.CAAT.EntityView.extend({
 
-  container     : null,
-  actor         : null,
-
-  initialize: function (options) {
-    this.container = options.container;
-    this.initActor();
-  },
-
-  getActor: function () {
-    return this.actor;
-  },
-  
-  expireActor: function () {
-    if (this.actor !== null) {
-      this.actor.setDiscardable(true);
-      this.actor.setExpired(true);
-      this.actor = null;
-   }
-  },
+  path          : null,
+  wanderTimeout : null,
+  zOrder        : 3000,
 
   initActor: function () {
+
+    var self = this;
     var tileWidth   = game.CAAT.SceneGardenView.tileWidth;
     var tileHeight  = game.CAAT.SceneGardenView.tileHeight;
     var tileMargin  = game.CAAT.SceneGardenView.tileMargin;
-
 
     var tilePos         = this.model.getParentModel().getTilePos();
 
@@ -63,24 +48,72 @@ game.CAAT.HeroView = Backbone.View.extend({
       actor.addChild(spriteContainer);
     }
 
-    // attach to scene
-    this.actor = actor;
-
+    return actor;
   },
 
-  redraw: function () {
-    this.expireActor();
+  entityReady: function () {
+
+    var self = this;
+
+    // ready
+    this.ready = true;
+
+    // do stuff here
     this.render();
+
+/*
+    this.pathBehaviour = new CAAT.PathBehavior();
+
+    this.actor.addBehavior(this.pathBehaviour);
+    this.actor.addListener({
+        behaviorExpired : function(behavior, time, actor) {
+            self.wander();
+        }});*/
+
+   // this.wander();
   },
 
-  render: function () {
+  wander: function () {
     if (!this.actor) {
-      this.initActor();
+        return false;
     }
-    
-    this.container.addChild(this.actor);
+    var self = this;
+    var heroPath = this.buildPath();
 
+    this.pathBehaviour.setFrameTime( game.getDirector().getScene().scene.time, 2000).
+        setPath(heroPath);
+
+    this.path = new CAAT.PathActor().
+        setBounds(0,0,this.container.width,this.container.height).
+        create().
+        enableEvents(false).
+        setPath(heroPath);
+
+    this.container.addChildImmediately(this.path);
+ 
+  },
+
+  buildPath: function () {
+      var heroPath =  new CAAT.Path();
+      heroPath.beginPath(this.actor.x, this.actor.y);
+
+      var pathPoints = 0;
+
+      var allItems = game.getRegistry().getEntitiesByType(game.EntityTypeItem);
+
+      // randomize all items
+      allItems.sort(function() {return 0.5 - Math.random()});
+
+      var itemsOfInterest = [];
+      for (var x in allItems) {
+        if (allItems[x].model.hasTilePos()) {
+          heroPath.setLinear(this.actor.x, this.actor.y, allItems[x].actor.x, allItems[x].actor.y);
+          pathPoints++;
+        }
+      }
+      heroPath.endPath();
+
+      return heroPath;
   }
-
 
 });

@@ -1,26 +1,17 @@
-game.CAAT.ItemView = Backbone.View.extend({
+game.CAAT.ItemView = game.CAAT.EntityView.extend({
 
-  container     : null,
-  actor         : null,
+  zOrder    : 2000,
 
-  initialize: function (options) {
-    this.container = options.container;
-    this.actor     = null;
+  entityReady: function () {
 
-    //this.model.on('change change:tilePos', this.redraw, this);
+    // ready
+    this.ready = true;
+
+    // do stuff here
+    this.render();
+
     this.model.on('change change:quantity', this.redraw, this);
-  },
-
-  getActor: function () {
-    return this.actor;
-  },
-
-  expireActor: function () {
-    if (this.actor !== null) {
-      this.actor.setDiscardable(true);
-      this.actor.setExpired(true);
-      this.actor = null;
-   }
+    this.model.on('change change:tilepos', this.redraw, this);
   },
 
   getCanvasPos: function () {
@@ -29,6 +20,7 @@ game.CAAT.ItemView = Backbone.View.extend({
       var tilePos = this.model.getTilePos();
       var tileEntity      = game.getRegistry().getTileEntityByPos(tilePos.x, tilePos.y);
       var tileEntityActor = tileEntity.getActor();
+
       return {
         x: tileEntityActor.x + tileEntity.container.x,
         y: tileEntityActor.y + tileEntity.container.y,
@@ -62,12 +54,7 @@ game.CAAT.ItemView = Backbone.View.extend({
     }
   },
 
-  redraw: function () {
-    this.expireActor();
-    this.render();
-  },
-
-  render: function () {
+  initActor: function () {
 
     var self        = this;
     var tileWidth   = game.CAAT.SceneGardenView.tileWidth;
@@ -77,15 +64,15 @@ game.CAAT.ItemView = Backbone.View.extend({
     var canvasPos   = this.getCanvasPos();
    
 
-    var tileActorContainer = new CAAT.ActorContainer(). 
+    var actor = new CAAT.ActorContainer(). 
       setBounds(canvasPos.x, canvasPos.y, tileWidth, tileHeight).
       setFillStyle('#515151').
       enableDrag(true);
         
     if (!this.model.isHeroBaseItem() && this.model.isChild()) {
-      tileActorContainer.setFillStyle('lightblue');
-      tileActorContainer.setScale(.5, .5);
-      tileActorContainer.enableEvents(false);
+      actor.setFillStyle('lightblue');
+      actor.setScale(.5, .5);
+      actor.enableEvents(false);
     }
     
     if (this.model.get('hasSprite')) {
@@ -101,7 +88,7 @@ game.CAAT.ItemView = Backbone.View.extend({
         setScale(.5, .5).
         enableEvents(false);
       
-      tileActorContainer.addChild(spriteContainer);
+      actor.addChild(spriteContainer);
     }
 
     var label = new CAAT.TextActor().
@@ -112,7 +99,7 @@ game.CAAT.ItemView = Backbone.View.extend({
       enableEvents(false).
       setText(this.model.get('name')).
       setFont('16px Verdana');
-    tileActorContainer.addChild(label);
+    actor.addChild(label);
 
     var quantityLabel = new CAAT.TextActor().
       setPosition(10,10).
@@ -120,7 +107,7 @@ game.CAAT.ItemView = Backbone.View.extend({
       setTextFillStyle('#fff').
       setBaseline('top').
       enableEvents(false);
-    tileActorContainer.addChild(quantityLabel);
+    actor.addChild(quantityLabel);
 
     if (this.model.isContainer()) {
       quantityLabel.setText(this.model.getContainedQuantity() + '/' + this.model.getMaxContainedQuantity());
@@ -145,11 +132,11 @@ game.CAAT.ItemView = Backbone.View.extend({
       setBaseline('top').
       enableEvents(false).
       setText(this.model.getUniqueId());
-    tileActorContainer.addChild(idLabel);
+    actor.addChild(idLabel);
 
 
 
-    tileActorContainer.mouseUp = function (e) {
+    actor.mouseUp = function (e) {
 
       var fieldDimensions = game.getField().getTotalFieldDimensions();
 
@@ -204,7 +191,7 @@ game.CAAT.ItemView = Backbone.View.extend({
       }
 
       if (!wasPlaced) {
-        tileActorContainer.setLocation(canvasPos.x, canvasPos.y);
+        actor.setLocation(canvasPos.x, canvasPos.y);
       }
 
       // Re-draw all children of this element
@@ -232,9 +219,7 @@ game.CAAT.ItemView = Backbone.View.extend({
     }
 
     // attach to scene
-    this.actor = tileActorContainer;
-    
-    this.container.addChild(this.actor);
+    return actor;
 
   }
 

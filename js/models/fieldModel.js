@@ -1,7 +1,6 @@
 game.ModelField = Backbone.Model.extend({
 
 	initialize: function (options) {
-
 		
 		// todo: pull values from DB
 		this.set('minTileWidth', -2);
@@ -34,6 +33,7 @@ game.ModelField = Backbone.Model.extend({
 			}
 		}
 	},
+	
 	getItemCollection: function () {
 		return this.itemCollection;
 	},
@@ -48,7 +48,7 @@ game.ModelField = Backbone.Model.extend({
 	},
 
 	addItemModel: function (itemModel) {
-		this.itemCollection.push(itemModel);
+		this.itemCollection.add(itemModel);
 	},
 
 	removeItemModel: function (doomedItemModel) {
@@ -61,6 +61,7 @@ game.ModelField = Backbone.Model.extend({
 	},
 
 	placeNewItem: function (itemModel, posX, posY) {
+		
 		// clear old tile
 		if (itemModel.hasTilePos()) {
 

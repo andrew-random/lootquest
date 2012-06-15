@@ -1,16 +1,6 @@
-game.CAAT.TileView = Backbone.View.extend({
+game.CAAT.TileView = game.CAAT.EntityView.extend({
 
-  container     : null,
-  actor         : null,
-
-  initialize: function (options) {
-    this.container = options.container;
-    this.initActor();
-  },
-
-  getActor: function () {
-    return this.actor;
-  },
+  zOrder    : 1000,
 
   initActor: function () {
     var tileWidth   = game.CAAT.SceneGardenView.tileWidth;
@@ -38,20 +28,10 @@ game.CAAT.TileView = Backbone.View.extend({
       setText(tilePos.x + ', ' + tilePos.y);
     actor.addChild(label);
 
-
     // attach to scene
-    this.actor = actor;
+    return actor;
 
   },
-
-  render: function () {
-    if (!this.actor) {
-      this.initActor();
-    }
-    
-    this.container.addChild(this.actor);
-
-  }
 
 
 });

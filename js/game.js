@@ -29,21 +29,24 @@ var game = {
 		// todo: load user details from wherever
 		this.userModel 	= new game.ModelUser();
 
-		// todo: load gameData from local SQLite goodness
-		this.fieldModel = new game.ModelField();
-
 		// todo: load herodata from DB
 		this.heroController.initialize();
 
-		if (true) {
-			this.initNewGame();
-		}
+		// todo: load gameData from local SQLite goodness
+		this.fieldModel = new game.ModelField();
 
 		// init CAAT instance
 		this.director = new game.CAAT.DirectorView({
 				model 	: this.fieldModel, 
 				el 		: $('canvas#gameView')
-		});		
+		});
+
+		if (true) {
+			this.initNewGame();
+		}
+
+		// trigger everything
+		this.director.trigger('gameStart');
 		
 	},
 
@@ -55,6 +58,7 @@ var game = {
 		var totalLoot 		= fieldModel.itemCollection.filter(function (itemModel) {
 			return itemModel.hasTilePos();
 		}).length;
+
 		var totalPossibleLoot = 25;
 		var maxLoot = rand(1, 5);
 		for (var x = 0; x <= maxLoot; x++) {
@@ -67,18 +71,16 @@ var game = {
 
 			var randomItem = environment.getRandomLoot();
 			fieldModel.addItemModel(randomItem);
-			fieldModel.placeInRandomTile(randomItem);			
-
-			// notify views
-			fieldModel.trigger("newLoot", randomItem, this);
+			fieldModel.placeInRandomTile(randomItem);
 		}
-		fieldModel.trigger("adventureComplete", null, this);
+
 	},
 
 	initNewGame: function () {
 
 		var heroThrone = new game.ModelHeroBaseItem();
 		this.fieldModel.addItemModel(heroThrone);
+		this.fieldModel.placeNewItem(heroThrone, 0, 0);
 
 		var firstHero = new game.ModelHero();
 
@@ -88,13 +90,30 @@ var game = {
 		// items are tied right back to the hero
 		heroThrone.setHeroUniqueId(firstHero.getUniqueId());
 
-		this.fieldModel.placeNewItem(heroThrone, 0, 0);
+		// add a hero to the user stack
 		game.getHeroController().addHero(firstHero);
+
+
+		// throw them some gold
+		var gold = new game.ModelItem({
+				name:'Gold', 
+				type: 'gold',
+				quantity:rand(20, 100),
+				maxQuantity: 150,
+				weight: 30,
+				hasSprite:true
+		});
+		this.fieldModel.addItemModel(gold);
+		this.fieldModel.placeInRandomTile(gold);
 
 	},
 
 	getUser: function () {
 		return this.userModel;
+	},
+
+	getDirector: function () {
+		return this.director;
 	},
 
 	getField: function () {

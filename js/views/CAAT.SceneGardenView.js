@@ -6,50 +6,37 @@
 */
 game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 
+	scene 		: null,
+	gameStarted : false,
+
 	initialize: function (options) {
 
-		// events
-		this.model.on('newLoot', this.newLoot, this);
-		this.model.on('adventureComplete', this.adventureComplete, this);
+		// fieldmodel events
+		this.model.on('placeNewItem', this.placeNewItem, this);
+		this.model.getItemCollection().on('add', this.addItemEntity, this);
 
-		this.director = options.director;
+		// hero collection events
+		game.getHeroController().heroCollection.on('add', this.addHeroEntity, this);
+
+		// director events
+		this.on('gameStart', this.gameStart, this);
+
+
 
 		this.scene = new CAAT.Scene();
 		this.scene.setFillStyle('#ccc');
 
 		this.tileContainer = new CAAT.ActorContainer().
-		  setBounds(30, 100, 580, 480).setFillStyle('green');
+		  setBounds(30, 100, 580, 480).
+		  setFillStyle('green');
+
 		this.scene.addChild(this.tileContainer);
 
-		// add all tiles as entities
-		this.model.getTileCollection().each(function (tileModel) {
-			var tileView = new game.CAAT.TileView({
-				container 	: this.tileContainer, 
-				model 		: tileModel
-			});
-			tileView.render();
-			game.getRegistry().addEntity(game.EntityTypeTile, tileView);
-		}, this);
+		this.initTileEntities();
 
-		// add existing items as entities
-		this.model.getItemCollection().each(function (itemModel) {
-			var itemView = new game.CAAT.ItemView({
-				container 	: this.scene, 
-				model 		: itemModel
-			});
-			itemView.redraw();
-			game.getRegistry().addEntity(game.EntityTypeItem, itemView);
-		}, this);
+		this.initItemEntities();
 
-		// add existing items as entities
-		game.getHeroes().each(function (heroModel) {
-			var heroView = new game.CAAT.HeroView({
-				container 	: this.scene, 
-				model 		: heroModel
-			});
-			heroView.redraw();
-			game.getRegistry().addEntity(game.EntityTypeHero, heroView);
-		}, this);
+
 
 		var adventureButton = new CAAT.ActorContainer().setBounds(500, 20, 100, 40).setFillStyle('#eee');
 		adventureButton.mouseUp = function () {
@@ -57,13 +44,11 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 			if (hero.canAdventure()) {
 				// adventure!
 				game.adventureInEnvironment(hero, new game.ModelEnvironment());
-
 			}
 
 			adventureCountDown.setText(hero.getAdventureCooldownSecondsRemaining());
-			
-
 		}
+
 		var adventureLabel = new CAAT.TextActor().
 	      setBounds(30, 15, 20, 20).
 	      setTextAlign('center').
@@ -83,45 +68,79 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 	    adventureButton.addChild(adventureCountDown);
 
 		this.scene.addChild(adventureButton);
-
-		/*this.scene.createTimer(
-            0,
-            Number.MAX_VALUE,
-            function(scene_time, timer_time, timertask_instance)  {   // timeout
-            	
-            },
-            function(scene_time, timer_time, timertask_instance)  {   // tick
-            	try {
-	      			var entities = game.getRegistry().getEntitiesByType(game.EntityTypeItem);
-	            	var count = entities.length;
-	            	while (count--) {
-	            		entities[count].redraw();
-	            	}
-            	} catch (exception) {
-            	} 
-            },
-            function(scene_time, timer_time, timertask_instance)  {   // cancel
-            }
-    	)*/
 		
 	},
 
-	newLoot: function (itemModel) {
+	addItemEntity: function (itemModel) {
+		// add existing items as entities
 		var itemView = new game.CAAT.ItemView({
-				container 	: this.scene, 
-				model 		: itemModel
+			container 	: this.scene, 
+			model 		: itemModel
 		});
 		game.getRegistry().addEntity(game.EntityTypeItem, itemView);
-	},
-	adventureComplete: function () {
-		var entities = game.getRegistry().getEntitiesByType(game.EntityTypeItem);
-		var count = entities.length;
-		while (count--) {
-			entities[count].redraw();
+
+		if (this.gameStarted) {
+			itemView.trigger('entityReady');
 		}
 	},
 
-	render: function() {
+	addHeroEntity: function (heroModel) {
+		var heroView = new game.CAAT.HeroView({
+			container 	: this.scene, 
+			model 		: heroModel
+		});
+		game.getRegistry().addEntity(game.EntityTypeHero, heroView);
+
+		if (this.gameStarted) {
+			itemView.trigger('entityReady');
+		}
+	},
+
+	initItemEntities: function () {
+		// add all items as entities
+		this.model.getItemCollection().each(function (itemModel) {
+			this.addItemEntity(itemModel);
+		}, this);
+	},
+
+	initTileEntities: function () {
+
+		// add all tiles as entities
+		this.model.getTileCollection().each(function (tileModel) {
+			var tileView = new game.CAAT.TileView({
+				container 	: this.tileContainer, 
+				model 		: tileModel
+			});
+			game.getRegistry().addEntity(game.EntityTypeTile, tileView);
+		}, this);
+
+	},
+
+	gameStart: function() {
+
+		this.gameStarted = true;
+
+		// render everything
+		var entities = game.getRegistry().entities;
+		
+		// render tiles first
+		var count = entities[game.EntityTypeTile].length;
+		while (count--) {
+			entities[game.EntityTypeTile][count].trigger('entityReady');
+		}
+
+		// render items second
+		var count = entities[game.EntityTypeItem].length;
+		while (count--) {
+			entities[game.EntityTypeItem][count].trigger('entityReady');
+		}
+
+		// render heroes last
+		var count = entities[game.EntityTypeHero].length;
+		while (count--) {
+			entities[game.EntityTypeHero][count].trigger('entityReady');
+		}
+		
 		return this;
 	}
 
