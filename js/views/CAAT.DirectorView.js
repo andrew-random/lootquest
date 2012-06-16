@@ -54,6 +54,9 @@ game.CAAT.DirectorView = Backbone.View.extend({
   },
 
   gameStart: function () {
+    
+    this.loadImages();
+
     this.activeSceneView.trigger('gameStart');
   },
 
@@ -63,13 +66,14 @@ game.CAAT.DirectorView = Backbone.View.extend({
   preloadImage: function (entityId, imageUrl) {
     this.imagesToPreload.push({id:entityId, url:imageUrl});
   },
+
   loadImages: function (entityId) {
     var self = this;
 
     new CAAT.ImagePreloader().loadImages(
         this.imagesToPreload,
         function( counter, images ) {
-            self.director.setImagesCache(images);
+          self.director.setImagesCache(images);
         }
     );
   }
