@@ -44,7 +44,7 @@ game.staticData[game.ModelBase.ModelClassItem] = data;
 var data = {};
 data['throne'] = {
 	name : 'Throne',
-	type : 'hero_throne',
+	type : 'throne',
 	maxQuantity: 1,
 }
 game.staticData[game.ModelBase.ModelClassHeroHomeItem] = data;

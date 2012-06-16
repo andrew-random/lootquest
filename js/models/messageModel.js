@@ -7,16 +7,6 @@ game.ModelMessage = game.ModelBase.extend({
 		message 		: 'Message body'
 	},
 
-	initialize: function (options) {
-		if (!options) {
-			options = {};
-		}
-		if (!options.uniqueId) {
-			options.uniqueId = getHash(3);
-		}
-		this.set('uniqueId', options.uniqueId);
-	},
-
 	setMessageType: function (messageType) {
 		this.set('messageType', messageType);
 	},

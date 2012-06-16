@@ -3,7 +3,6 @@ game.CAAT.DirectorView = Backbone.View.extend({
   activeSceneView : null,
   scenes          : null,
   director        : null,
-  imagesToPreload : [],
 
   // known scenes
   SCENE_DEFAULT   : 'SceneGardenView',
@@ -25,6 +24,8 @@ game.CAAT.DirectorView = Backbone.View.extend({
       this.setScene(this.SCENE_DEFAULT);
     }
     
+    this.loadImages();
+
     // set 20 fps animation
     CAAT.loop(20);
 
@@ -41,7 +42,7 @@ game.CAAT.DirectorView = Backbone.View.extend({
     });
 
     // add new CAAT scene to director
-    var CAATScene = this.activeSceneView.getScene();
+    var CAATScene = this.activeSceneView.getSceneActor();
     this.director.addScene(CAATScene);
 
     // change director to display new scene
@@ -54,8 +55,6 @@ game.CAAT.DirectorView = Backbone.View.extend({
   },
 
   gameStart: function () {
-    
-    this.loadImages();
 
     this.activeSceneView.trigger('gameStart');
   },
@@ -63,17 +62,41 @@ game.CAAT.DirectorView = Backbone.View.extend({
   /**
    *  The director preloads our sprites
    */
-  preloadImage: function (entityId, imageUrl) {
-    this.imagesToPreload.push({id:entityId, url:imageUrl});
-  },
-
   loadImages: function (entityId) {
     var self = this;
+    var preloadImages = [];
+
+    var staticData = game.getStaticData().getData();
+    
+    for (var className in staticData) {
+     for (var modelType in staticData[className]) {
+        var modelClass = className.replace('Model', '');
+        switch (className) {
+          case game.ModelBase.ModelClassHeroHomeItem:
+            preloadImages.push({id:modelClass + modelType, url:'images/item/hero/' + modelType + '.png'});
+            break;
+
+          default:
+            preloadImages.push({id:modelClass + modelType, url:'images/' + modelClass + '/' + modelType + '.png'});
+            break;
+        }
+      }
+    }
+
+    var loadingMessage = new game.ModelMessage();
+    loadingMessage.setMessageTitle('Loading Images');
+    loadingMessage.setMessage('One moment');
+    game.getMessenger().addMessage(loadingMessage);
 
     new CAAT.ImagePreloader().loadImages(
-        this.imagesToPreload,
+        preloadImages,
         function( counter, images ) {
+
           self.director.setImagesCache(images);
+
+          if (counter == preloadImages.length) {
+            game.getMessenger().removeMessage(loadingMessage);
+          }
         }
     );
   }

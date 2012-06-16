@@ -1,14 +1,16 @@
 
 game.staticDataController = {
 
-	data: [],
-
 	initialize: function () {
 		// todo: check central server for new data, update local
 	},
 
 	hasData: function () {
 		return true;
+	},
+
+	getData: function () {
+		return game.staticData;
 	},
 
 	getModel: function (modelClass, modelType, options) {

@@ -46,6 +46,37 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
     
     actor.addChild(spriteContainer);
 
+    var speechBubble = new CAAT.ActorContainer();
+    actor.addChild(speechBubble);
+
+    var timer = new CAAT.TextActor().
+      setBounds(65, 20, 70, 15).
+      setTextAlign('left').
+      setBaseline('top').
+      setTextFillStyle('#000').
+      setFillStyle('#fff').
+      enableEvents(false).
+      setText(this.model.getAdventureCooldownSecondsRemaining()).
+      setFont('12px Verdana');
+    speechBubble.addChild(timer);
+
+    game.getDirector().getScene().getSceneActor().createTimer(
+              0,
+              Number.MAX_VALUE,
+              function(scene_time, timer_time, timertask_instance)  {   // timeout
+              },
+              function(scene_time, timer_time, timertask_instance)  {   // tick
+                if (self.model.canAdventure()) {
+                  timer.setText('I am ready!');
+                } else {
+                  timer.setText(self.model.getAdventureCooldownSecondsRemaining());
+                }
+              },
+              function(scene_time, timer_time, timertask_instance)  {   // cancel
+              }
+      )
+
+
     return actor;
   },
 

@@ -12,11 +12,6 @@ game.CAAT.EntityView = Backbone.View.extend({
     	// entity ready event
     	this.on('entityReady', this.entityReady, this);
 
-		// add sprite to Director for caching
-		if (this.model.hasSprite()) {
-   			game.getDirector().preloadImage(this.model.getModelClass() + '-' + this.model.get('type'), this.model.getSprite());
-   		}
-
     	return this;    	
 	},
 

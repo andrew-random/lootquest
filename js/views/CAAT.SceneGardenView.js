@@ -46,10 +46,10 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 			var hero = game.getHero()
 			if (hero.canAdventure()) {
 				// adventure!
-				game.adventureInEnvironment(hero, new game.ModelEnvironment());
+				var environment = new game.ModelEnvironment();
+				environment.initNewEnvironment();
+				game.adventureInEnvironment(hero, environment);
 			}
-
-			adventureCountDown.setText(hero.getAdventureCooldownSecondsRemaining());
 		}
 
 		var adventureLabel = new CAAT.TextActor().
@@ -60,15 +60,6 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 	      enableEvents(false).
 	      setText('ADVENTURE');
 	    adventureButton.addChild(adventureLabel);
-
-	    var adventureCountDown = new CAAT.TextActor().
-	      setBounds(27, 30, 20, 20).
-	      setTextAlign('center').
-	      setTextFillStyle('#333').
-	      setBaseline('top').
-	      enableEvents(false).
-	      setText('Ready');
-	    adventureButton.addChild(adventureCountDown);
 
 		this.scene.addChild(adventureButton);
 		

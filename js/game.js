@@ -58,7 +58,7 @@ var game = {
 
 	adventureInEnvironment: function (heroModel, environmentModel) {
 		var fieldModel		= this.getField();
-		var environment 	= new game.ModelEnvironment();
+
 		heroModel.setLastAdventureTime(new Date().getTime());
 
 		var totalLoot 		= fieldModel.itemCollection.filter(function (itemModel) {
@@ -75,7 +75,7 @@ var game = {
 			}
 			totalLoot++;
 
-			var randomItem = environment.getRandomLoot();
+			var randomItem = environmentModel.getRandomLoot();
 			fieldModel.addItemModel(randomItem);
 			fieldModel.placeInRandomTile(randomItem);
 		}

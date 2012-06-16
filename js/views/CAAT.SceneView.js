@@ -6,7 +6,7 @@ game.CAAT.SceneView = Backbone.View.extend({
   initialize: function (options) {
   },
 
-  getScene: function () {
+  getSceneActor: function () {
     return this.scene;
   },
 
