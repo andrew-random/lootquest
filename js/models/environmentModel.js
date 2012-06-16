@@ -6,63 +6,41 @@ game.ModelEnvironment = Backbone.Model.extend({
 
 		getRandomLoot: function () {
 			var possibleLoot = [];
-			possibleLoot.push(new game.ModelItem({
-				name:'Gold', 
-				type: 'gold',
-				quantity:rand(10, 50),
-				maxQuantity: 150,
-				weight: 30,
-				hasSprite:true
-			}));
-			possibleLoot.push(new game.ModelItem({
-				name: 'Sword', 
+			
+			possibleLoot.push({
 				type: 'weapon', 
 				quantity:1,
-				maxQuantity:1,
 				weight: 2,
-				hasSprite:true
-			}));
-			possibleLoot.push(new game.ModelItem({
-				name:'Gem', 
+			});
+			possibleLoot.push({
+				type: 'gold',
+				quantity:rand(10, 50),
+				weight: 30,
+			});
+			possibleLoot.push({
 				type:'gem', 
 				quantity:rand(1,2),
-				maxQuantity:5,
-				hasSprite:true,
 				weight: 10,
-			}));
+			});
 
 			/* Containers */
-			possibleLoot.push(new game.ModelItem({
-				name:'Chest', 
+			possibleLoot.push({
 				type:'treasure_chest', 
 				quantity:1,
-				childrenTypes:['gold'],
-				maxQuantity:300,
-				hasSprite:true,
-				isContainer:true,
 				weight: 5
-			}));
-			possibleLoot.push(new game.ModelItem({
-				name:'Jewellery', 
+			});
+			possibleLoot.push({
 				type:'gem_chest', 
 				quantity:1,
-				childrenTypes:['gem'],
-				maxQuantity:15,
-				hasSprite:true,
-				isContainer:true,
 				weight: 1
-			}));
-			possibleLoot.push(new game.ModelItem({
-				name:'Wpn. Rack', 
+			});
+			possibleLoot.push({
 				type:'weapon_rack', 
 				quantity:1,
-				childrenTypes:['weapon'],
-				maxQuantity:5,
-				hasSprite:true,
-				isContainer:true,
 				weight:1
-			}));
+			});
 
-			return getWeightedRandom(possibleLoot);
+			var selectedItem = getWeightedRandom(possibleLoot);
+			return game.getStaticData().getModel(game.ModelBase.ModelClassItem, selectedItem.type, selectedItem);
 		}
 });

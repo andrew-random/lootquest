@@ -55,14 +55,14 @@ function getWeightedRandom(data) {
     var count           = data.length;
    
     while (count--) {
-        totalWeight += data[count].get('weight');
+        totalWeight += data[count].weight;
     }
 
     var random = Math.floor(rand(0, totalWeight));
 
     var count           = data.length;
     while (count--) {
-        currentWeight += data[count].get('weight');
+        currentWeight += data[count].weight;
         if (random <= currentWeight) {
             return data[count];
         }

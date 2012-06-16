@@ -32,21 +32,19 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
       setFont('16px Verdana');
     actor.addChild(label);
 
-    if (this.model.hasSprite()) {
-      var image = new Image();
-      image.src = this.model.getSprite();
+    var image = new Image();
+    image.src = this.model.getSprite();
 
-      var sprite = new CAAT.SpriteImage();
-      sprite.initialize(image, 1, 1);
+    var sprite = new CAAT.SpriteImage();
+    sprite.initialize(image, 1, 1);
 
-      var spriteContainer = new CAAT.Actor().
-        setBounds(0, 0, tileWidth, tileHeight).
-        setBackgroundImage(sprite).
-        setScale(.5, .5).
-        enableEvents(false);
-      
-      actor.addChild(spriteContainer);
-    }
+    var spriteContainer = new CAAT.Actor().
+      setBounds(0, 0, tileWidth, tileHeight).
+      setBackgroundImage(sprite).
+      setScale(.5, .5).
+      enableEvents(false);
+    
+    actor.addChild(spriteContainer);
 
     return actor;
   },

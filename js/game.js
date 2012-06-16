@@ -38,6 +38,9 @@ var game = {
 		// todo: load queued messengers
 		this.messengerController.initialize();
 
+		// todo: ajax fetch static data as necessary
+		this.staticDataController.initialize();
+
 		// init CAAT instance
 		this.director = new game.CAAT.DirectorView({
 				model 	: this.fieldModel, 
@@ -81,7 +84,7 @@ var game = {
 
 	initNewGame: function () {
 
-		var heroThrone = new game.ModelHeroHomeItem();
+		var heroThrone = game.getStaticData().getModel(game.ModelBase.ModelClassHeroHomeItem, 'throne', {quantity: 1});
 		this.fieldModel.addItemModel(heroThrone);
 		this.fieldModel.placeNewItem(heroThrone, 0, 0);
 
@@ -98,13 +101,8 @@ var game = {
 
 
 		// throw them some gold
-		var gold = new game.ModelItem({
-				name:'Gold', 
-				type: 'gold',
-				quantity:100,
-				maxQuantity: 150,
-				hasSprite:true
-		});
+		var gold = game.getStaticData().getModel(game.ModelBase.ModelClassItem, 'gold', {quantity: 100});
+		
 		this.fieldModel.addItemModel(gold);
 		this.fieldModel.placeNewItem(gold, -1, 0);
 
@@ -154,11 +152,16 @@ var game = {
 
 	getMessenger: function () {
 		return this.messengerController;
-	}
+	},
 
+	getStaticData: function () {
+		return this.staticDataController;
+	},
 
 }
-game.CAAT = [];
+
+game.CAAT 				= [];
+game.staticData 		= {};
 game.EntityTypeTile		= 'tile';
 game.EntityTypeItem		= 'item';
 game.EntityTypeHero		= 'hero';

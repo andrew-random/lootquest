@@ -71,21 +71,20 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       actor.enableEvents(false);
     }
     
-    if (this.model.get('hasSprite')) {
-      var image = new Image();
-      image.src = self.model.getSprite();
+    var image = new Image();
+    image.src = self.model.getSprite();
 
-      var sprite = new CAAT.SpriteImage();
-      sprite.initialize(image, 1, 1);
+    var sprite = new CAAT.SpriteImage();
+    sprite.initialize(image, 1, 1);
 
-      var spriteContainer = new CAAT.Actor().
-        setBounds(0, 0, tileWidth, tileHeight).
-        setBackgroundImage(sprite).
-        setScale(.5, .5).
-        enableEvents(false);
-      
-      actor.addChild(spriteContainer);
-    }
+    var spriteContainer = new CAAT.Actor().
+      setBounds(0, 0, tileWidth, tileHeight).
+      setBackgroundImage(sprite).
+      setScale(.5, .5).
+      enableEvents(false);
+    
+    actor.addChild(spriteContainer);
+  
 
     var label = new CAAT.TextActor().
       setBounds(0, 65, tileWidth, 0).

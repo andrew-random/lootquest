@@ -51,3 +51,7 @@ game.ModelBase = Backbone.Model.extend({
 	},
 
 });
+
+game.ModelBase.ModelClassItem = 'ModelItem';
+game.ModelBase.ModelClassHeroHomeItem = 'ModelHeroHomeItem';
+game.ModelBase.ModelClassHero = 'ModelHero';
