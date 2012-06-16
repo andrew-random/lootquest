@@ -1,12 +1,10 @@
-game.ModelTile = Backbone.Model.extend({
+game.ModelTile = game.ModelBase.extend({
 
 		defaults: {
+			modelClass  : 'tile',
 			tileX		: null,		// 0, 0 to 10, 10, etc.
 			tileY		: null,
 			itemModel	: null		// child items contained by this tile.
-		},
-
-		initialize: function () {
 		},
 
 		setTilePos: function (tileX, tileY) {

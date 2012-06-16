@@ -4,11 +4,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
 
   entityReady: function () {
 
-    // ready
-    this.ready = true;
-
-    // do stuff here
-    this.render();
+    this._baseEntityReady();
 
     this.model.on('change change:quantity', this.redraw, this);
     this.model.on('change change:tilepos', this.redraw, this);
@@ -69,7 +65,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       setFillStyle('#515151').
       enableDrag(true);
         
-    if (!this.model.isHeroBaseItem() && this.model.isChild()) {
+    if (!this.model.isHeroHomeItem() && this.model.isChild()) {
       actor.setFillStyle('lightblue');
       actor.setScale(.5, .5);
       actor.enableEvents(false);
@@ -124,7 +120,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
     }
     
     
-
+/*
     var idLabel = new CAAT.TextActor().
       setPosition(80, 60).
       setTextAlign('right').
@@ -132,7 +128,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       setBaseline('top').
       enableEvents(false).
       setText(this.model.getUniqueId());
-    actor.addChild(idLabel);
+    actor.addChild(idLabel);*/
 
 
 
@@ -206,7 +202,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       }
 
       // Re-draw heroes
-      if (self.model.isHeroBaseItem()) {
+      if (self.model.isHeroHomeItem()) {
         var heroEntity = game.getRegistry().getEntityByUniqueId(self.model.getHeroUniqueId(), game.EntityTypeHero);
         if (heroEntity) {
           heroEntity.redraw();

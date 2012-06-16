@@ -1,6 +1,7 @@
-game.ModelMessage = Backbone.Model.extend({
+game.ModelMessage = game.ModelBase.extend({
 
 	default: {
+		modelClass 		: 'message',		
 		messageType  	: 'popup',
 		messageTitle 	: 'Default Message',
 		message 		: 'Message body'
@@ -14,13 +15,6 @@ game.ModelMessage = Backbone.Model.extend({
 			options.uniqueId = getHash(3);
 		}
 		this.set('uniqueId', options.uniqueId);
-	},
-
-	getUniqueId: function () {
-		return this.get('uniqueId');
-	},
-	setUniqueId: function (uniqueId) {
-		return this.set('uniqueId', uniqueId);
 	},
 
 	setMessageType: function (messageType) {

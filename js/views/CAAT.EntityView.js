@@ -7,12 +7,17 @@ game.CAAT.EntityView = Backbone.View.extend({
 
 	initialize: function (options) {
 
-    	this.container = options.container;
+		this.container = options.container;
 
     	// entity ready event
     	this.on('entityReady', this.entityReady, this);
 
-    	return this;
+		// add sprite to Director for caching
+		if (this.model.hasSprite()) {
+   			game.getDirector().preloadImage(this.model.getModelClass() + '-' + this.model.get('type'), this.model.getSprite());
+   		}
+
+    	return this;    	
 	},
 
 	getActor: function () {
@@ -49,13 +54,19 @@ game.CAAT.EntityView = Backbone.View.extend({
 	},
 
 	entityReady: function () {
+		
+		this._baseEntityReady();
+		
+	},
+
+	_baseEntityReady: function () {
 
 		// ready
 		this.ready = true;
 
 		// do stuff here
 		this.render();
-	},
+	}
 
 
 

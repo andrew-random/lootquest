@@ -3,6 +3,7 @@ game.CAAT.DirectorView = Backbone.View.extend({
   activeSceneView : null,
   scenes          : null,
   director        : null,
+  imagesToPreload : [],
 
   // known scenes
   SCENE_DEFAULT   : 'SceneGardenView',
@@ -54,6 +55,23 @@ game.CAAT.DirectorView = Backbone.View.extend({
 
   gameStart: function () {
     this.activeSceneView.trigger('gameStart');
+  },
+
+  /**
+   *  The director preloads our sprites
+   */
+  preloadImage: function (entityId, imageUrl) {
+    this.imagesToPreload.push({id:entityId, url:imageUrl});
+  },
+  loadImages: function (entityId) {
+    var self = this;
+
+    new CAAT.ImagePreloader().loadImages(
+        this.imagesToPreload,
+        function( counter, images ) {
+            self.director.setImagesCache(images);
+        }
+    );
   }
 
 });

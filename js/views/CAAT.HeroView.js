@@ -18,7 +18,7 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
     var posX = tileEntityActor.x + tileEntity.container.x + 25;
     var posY = tileEntityActor.y + tileEntity.container.y + 20;
 
-    var actor = new CAAT.ActorContainer(). 
+    var actor = new CAAT.ActorContainer().
       enableEvents(false).
       setBounds(posX, posY, tileWidth, tileHeight);
  
@@ -32,7 +32,7 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
       setFont('16px Verdana');
     actor.addChild(label);
 
-    if (this.model.get('hasSprite')) {
+    if (this.model.hasSprite()) {
       var image = new Image();
       image.src = this.model.getSprite();
 
@@ -53,13 +53,9 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
 
   entityReady: function () {
 
+    this._baseEntityReady();
+    
     var self = this;
-
-    // ready
-    this.ready = true;
-
-    // do stuff here
-    this.render();
 
 /*
     this.pathBehaviour = new CAAT.PathBehavior();

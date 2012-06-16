@@ -81,7 +81,7 @@ var game = {
 
 	initNewGame: function () {
 
-		var heroThrone = new game.ModelHeroBaseItem();
+		var heroThrone = new game.ModelHeroHomeItem();
 		this.fieldModel.addItemModel(heroThrone);
 		this.fieldModel.placeNewItem(heroThrone, 0, 0);
 

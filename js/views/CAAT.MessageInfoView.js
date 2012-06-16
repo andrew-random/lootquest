@@ -53,11 +53,7 @@ game.CAAT.MessageInfoView = game.CAAT.EntityView.extend({
 
 	entityReady: function () {
 
-		// ready
-		this.ready = true;
-
-		// do stuff here
-		this.render();
+		this._baseEntityReady();
 
 		var self = this;
 		setTimeout(function () {

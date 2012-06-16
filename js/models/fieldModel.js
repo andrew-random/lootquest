@@ -61,7 +61,7 @@ game.ModelField = Backbone.Model.extend({
 	},
 
 	placeNewItem: function (itemModel, posX, posY) {
-		
+
 		// clear old tile
 		if (itemModel.hasTilePos()) {
 

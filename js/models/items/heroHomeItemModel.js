@@ -1,5 +1,7 @@
-game.ModelHeroBaseItem = game.ModelItem.extend({
+game.ModelHeroHomeItem = game.ModelItem.extend({
+	
 	defaults: {
+		modelClass: 'hero_home_item',
 		name: 'Throne',
 		quantity: 1,
 		maxQuantity: 1,

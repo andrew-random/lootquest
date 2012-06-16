@@ -1,6 +1,7 @@
-game.ModelHero = Backbone.Model.extend({
+game.ModelHero = game.ModelBase.extend({
 
 	defaults: {
+		modelClass: 'hero',
 		name: 'Hero',
 		type: 'hero',
 		attack: 5,
@@ -8,29 +9,9 @@ game.ModelHero = Backbone.Model.extend({
 		charisma: 5,
 		equipment: [],
 		cooldown: 3,		// seconds
-		lastAdventureTime: null,
-		hasSprite: true
+		lastAdventureTime: null
 	},
 
-	initialize: function (options) {
-		if (!options) {
-			options = {};
-		}
-		if (!options.uniqueId) {
-			options.uniqueId = getHash(3);
-		}
-		this.set('uniqueId', options.uniqueId);
-
-		return this;
-	},
-
-	getUniqueId: function () {
-		return this.get('uniqueId');
-	},
-	setUniqueId: function (uniqueId) {
-		return this.set('uniqueId', uniqueId);
-	},
-	
 	/**
 	 * Child and container functions
 	 */
@@ -46,10 +27,6 @@ game.ModelHero = Backbone.Model.extend({
 	},
 	getParentModel: function () {
 		return game.getField().getItemByUniqueId(this.getParentId());
-	},
-
-	getSprite: function () {
-		return 'images/heroes/' + this.get('type') + '.png';
 	},
 
 	setLastAdventureTime: function (timestamp) {

@@ -5,42 +5,37 @@
 	CATEGORY_DECOR
 	CATEGORY_CRAFTING
 */
-game.ModelItem = Backbone.Model.extend({
+game.ModelItem = game.ModelBase.extend({
 
 		defaults: {
+			modelClass  : 'item',
+
 			name 		: null,
 			type		: null,
 			quantity 	: 0,
 			categories	: [],
 			tilePos		: null,			// x any y coords on tile field,
-			uniqueId    : null,			// unique id to refer to this item
 	
 			footprint   : null,			// array of tiles this item takes up
 
 			parentId	: null,			// parent ModelItem
 			isContainer : null,			// whether this ModelItem can hold children
 			children    : [],			// array of unique ids of child items
-		},
-		
+		},		
 
 		initialize: function (options) {
+
+			this._baseInitialize(options);
+
 			if (!options) {
 				options = {};
 			}
-			if (!options.uniqueId) {
-				options.uniqueId = getHash(5);
-			}
-			this.set('uniqueId', options.uniqueId);
-
+			
 			if (!options.children) {
 				options.children = [];
 			}
 			this.setChildren(options.children);
 			return this;
-		},
-
-		getUniqueId: function () {
-			return this.get('uniqueId');
 		},
 
 		/**
@@ -190,10 +185,6 @@ game.ModelItem = Backbone.Model.extend({
 			}
 		},
 
-		getSprite: function () {
-			return 'images/items/' + this.get('type') + '.png';
-		},
-
 		/**
 		 * Child and container functions
 		 */
@@ -280,8 +271,8 @@ game.ModelItem = Backbone.Model.extend({
 			return this.get('maxQuantity');
 		},
 
-		isHeroBaseItem: function () {
-			return this instanceof game.ModelHeroBaseItem;
+		isHeroHomeItem: function () {
+			return this.getModelClass() == 'hero_home_item';
 		},
 
 		isContainerItem: function () {
