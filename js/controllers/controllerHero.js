@@ -7,7 +7,7 @@ game.heroController = {
 
 	},
 
-	getHeroes: function () {
+	getHeroCollection: function () {
 		return this.heroCollection;
 	},
 

@@ -71,9 +71,23 @@ game.CAAT.DirectorView = Backbone.View.extend({
     for (var className in staticData) {
      for (var modelType in staticData[className]) {
         var modelClass = className.replace('Model', '');
+        
         switch (className) {
+
+          case game.ModelBase.ModelClassContainerItem:
+            preloadImages.push({id:modelClass + modelType, url:'images/item/container/' + modelType + '.png'});
+            break;
+
           case game.ModelBase.ModelClassHeroHomeItem:
-            preloadImages.push({id:modelClass + modelType, url:'images/item/hero/' + modelType + '.png'});
+            preloadImages.push({id:modelClass + modelType, url:'images/item/hero_home/' + modelType + '.png'});
+            break;
+
+           case game.ModelBase.ModelClassEquipmentItem:
+            preloadImages.push({id:modelClass + modelType, url:'images/item/equipment/' + modelType + '.png'});
+            break;
+
+           case game.ModelBase.ModelClassItem:
+            preloadImages.push({id:modelClass + modelType, url:'images/item/' + modelType + '.png'});
             break;
 
           default:

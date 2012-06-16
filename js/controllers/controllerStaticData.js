@@ -20,6 +20,7 @@ game.staticDataController = {
 		// make sure nothing confusing gets passed
 		delete options.type;
 		delete options.weight;
+		delete options.modelClass;
 
 		// clone the array, so that staticdata isn't changed
 		for (var x in game.staticData[modelClass][modelType]) {

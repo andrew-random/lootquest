@@ -23,7 +23,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       };
 
     } else if (this.model.hasParent()) {
-
+      
       var tilePos = this.model.getParentModel().getTilePos();
       var tileEntity      = game.getRegistry().getTileEntityByPos(tilePos.x, tilePos.y);
       var tileEntityActor = tileEntity.getActor();
@@ -104,18 +104,11 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       enableEvents(false);
     actor.addChild(quantityLabel);
 
-    if (this.model.isContainer()) {
-      quantityLabel.setText(this.model.getContainedQuantity() + '/' + this.model.getMaxContainedQuantity());
-      if (this.model.getMaxContainedQuantity() == this.model.getContainedQuantity()) {
-         quantityLabel.setTextFillStyle('#06ff00');
-      }
-    } else {
-      if (this.model.get('maxQuantity') != 1) {
-        quantityLabel.setText(this.model.get('quantity') + '/' + this.model.get('maxQuantity'));
-      }
-      if (this.model.get('maxQuantity') == this.model.get('quantity')) {
-         quantityLabel.setTextFillStyle('#06ff00');
-      }
+    if (this.model.getMaxQuantity() != 1) {
+      quantityLabel.setText(this.model.getQuantity() + '/' + this.model.getMaxQuantity());
+    }
+    if (this.model.getMaxQuantity() == this.model.getQuantity()) {
+       quantityLabel.setTextFillStyle('#06ff00');
     }
     
     
@@ -187,7 +180,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       }
 
       // Re-draw all children of this element
-      if (self.model.hasChildren()) {
+      if (self.model.isContainerItem()) {
 
           var childUniqueIds = self.model.getChildren();
 

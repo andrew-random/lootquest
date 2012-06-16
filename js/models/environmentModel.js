@@ -42,17 +42,20 @@ game.ModelEnvironment = game.ModelBase.extend({
 			var possibleLoot = [];
 			
 			possibleLoot.push({
-				type: 'weapon', 
+				type: 'sword',
+				modelClass: game.ModelBase.ModelClassEquipmentItem,
 				quantity:1,
 				weight: 2,
 			});
 			possibleLoot.push({
 				type: 'gold',
+				modelClass: game.ModelBase.ModelClassItem,
 				quantity:rand(10, 50),
 				weight: 30,
 			});
 			possibleLoot.push({
 				type:'gem', 
+				modelClass: game.ModelBase.ModelClassItem,
 				quantity:rand(1,2),
 				weight: 10,
 			});
@@ -60,21 +63,24 @@ game.ModelEnvironment = game.ModelBase.extend({
 			/* Containers */
 			possibleLoot.push({
 				type:'treasure_chest', 
+				modelClass: game.ModelBase.ModelClassContainerItem,
 				quantity:1,
-				weight: 5
+				weight: 3
 			});
 			possibleLoot.push({
 				type:'gem_chest', 
+				modelClass: game.ModelBase.ModelClassContainerItem,
 				quantity:1,
 				weight: 1
 			});
 			possibleLoot.push({
 				type:'weapon_rack', 
+				modelClass: game.ModelBase.ModelClassContainerItem,
 				quantity:1,
 				weight:1
 			});
 
 			var selectedItem = getWeightedRandom(possibleLoot);
-			return game.getStaticData().getModel(game.ModelBase.ModelClassItem, selectedItem.type, selectedItem);
+			return game.getStaticData().getModel(selectedItem.modelClass, selectedItem.type, selectedItem);
 		}
 });

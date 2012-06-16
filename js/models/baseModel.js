@@ -23,15 +23,8 @@ game.ModelBase = Backbone.Model.extend({
 	},
 
 	getSprite: function () {
-		switch (this.getModelClass()) {
-			case 'hero_home_item':
-				return 'images/item/hero/' + this.get('type') + '.png';
-				break;
-
-			default:
-				return 'images/' + this.getModelClass() + '/' + this.get('type') + '.png';
-				break;
-		}
+		
+		return 'images/' + this.getModelClass() + '/' + this.get('type') + '.png';
 		
 	},
 
@@ -54,4 +47,7 @@ game.ModelBase = Backbone.Model.extend({
 
 game.ModelBase.ModelClassItem = 'ModelItem';
 game.ModelBase.ModelClassHeroHomeItem = 'ModelHeroHomeItem';
+game.ModelBase.ModelClassContainerItem = 'ModelContainerItem';
+game.ModelBase.ModelClassEquipmentItem = 'ModelEquipmentItem';
 game.ModelBase.ModelClassHero = 'ModelHero';
+

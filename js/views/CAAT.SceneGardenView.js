@@ -17,7 +17,7 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 		this.model.getItemCollection().on('remove', this.removeItemEntity, this);
 
 		// hero collection events
-		game.getHeroController().getHeroes().on('add', this.addHeroEntity, this);
+		game.getHeroes().getHeroCollection().on('add', this.addHeroEntity, this);
 
 		// messenger events
 		game.getMessenger().getMessages().on('add', this.addMessageEntity, this);
@@ -43,13 +43,9 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 
 		var adventureButton = new CAAT.ActorContainer().setBounds(500, 20, 100, 40).setFillStyle('#eee');
 		adventureButton.mouseUp = function () {
-			var hero = game.getHero()
-			if (hero.canAdventure()) {
-				// adventure!
-				var environment = new game.ModelEnvironment();
-				environment.initNewEnvironment();
-				game.adventureInEnvironment(hero, environment);
-			}
+
+			game.getAdventure().startNewAdventure();
+
 		}
 
 		var adventureLabel = new CAAT.TextActor().

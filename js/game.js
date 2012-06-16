@@ -29,11 +29,16 @@ var game = {
 		// todo: load user details from wherever
 		this.userModel 	= new game.ModelUser();
 
+		// todo: load gameData from local SQLite goodness
+		this.fieldModel = new game.ModelField();
+
 		// todo: load herodata from DB
 		this.heroController.initialize();
 
-		// todo: load gameData from local SQLite goodness
-		this.fieldModel = new game.ModelField();
+		this.adventureController.initialize();
+
+		// todo: load user's known environments
+		this.environmentController.initialize();
 
 		// todo: load queued messengers
 		this.messengerController.initialize();
@@ -56,39 +61,29 @@ var game = {
 		
 	},
 
-	adventureInEnvironment: function (heroModel, environmentModel) {
-		var fieldModel		= this.getField();
-
-		heroModel.setLastAdventureTime(new Date().getTime());
-
-		var totalLoot 		= fieldModel.itemCollection.filter(function (itemModel) {
-			return itemModel.hasTilePos();
-		}).length;
-
-		var totalPossibleLoot = 25;
-		var maxLoot = rand(1, 3);
-		for (var x = 0; x <= maxLoot; x++) {
-
-			if (totalLoot == totalPossibleLoot) {
-				console.log('Board is full.');
-				continue;
-			}
-			totalLoot++;
-
-			var randomItem = environmentModel.getRandomLoot();
-			fieldModel.addItemModel(randomItem);
-			fieldModel.placeInRandomTile(randomItem);
-		}
-
-	},
-
 	initNewGame: function () {
 
+		// add default environments		
+		var environmentModel = new game.ModelEnvironment();
+		environmentModel.initNewEnvironment();
+		this.getEnvironments().addEnvironment(environmentModel);
+
+		var environmentModel = new game.ModelEnvironment();
+		environmentModel.initNewEnvironment();
+		this.getEnvironments().addEnvironment(environmentModel);
+
+		var environmentModel = new game.ModelEnvironment();
+		environmentModel.initNewEnvironment();
+		this.getEnvironments().addEnvironment(environmentModel);
+
+
+		// add default hero
 		var heroThrone = game.getStaticData().getModel(game.ModelBase.ModelClassHeroHomeItem, 'throne', {quantity: 1});
 		this.fieldModel.addItemModel(heroThrone);
 		this.fieldModel.placeNewItem(heroThrone, 0, 0);
 
 		var firstHero = new game.ModelHero();
+		firstHero.initNew();
 
 		// heroes are tied to a hero base item
 		firstHero.setParentId(heroThrone.getUniqueId());
@@ -97,7 +92,7 @@ var game = {
 		heroThrone.setHeroUniqueId(firstHero.getUniqueId());
 
 		// add a hero to the user stack
-		game.getHeroController().addHero(firstHero);
+		game.getHeroes().addHero(firstHero);
 
 
 		// throw them some gold
@@ -107,15 +102,12 @@ var game = {
 		this.fieldModel.placeNewItem(gold, -1, 0);
 
 		// throw them a sword
-		var sword = new game.ModelItem({
-				name:'Sword', 
-				type: 'weapon',
-				quantity:1,
-				maxQuantity: 1,
-				hasSprite:true
-		});
+		var sword = game.getStaticData().getModel(game.ModelBase.ModelClassEquipmentItem, 'sword', {quantity: 1});
 		this.fieldModel.addItemModel(sword);
 		this.fieldModel.placeNewItem(sword, 1, 0);
+
+		// equip this sword
+		firstHero.addEquipment(sword);
 
 	},
 
@@ -135,19 +127,8 @@ var game = {
 		return this.registry;
 	},
 
-	//hack
-	getHero: function () {
-		return this.getHeroes().find(function () { 
-			return true;
-		});
-	},
-
-	getHeroController: function () {
-		return this.heroController;
-	},
-
 	getHeroes: function () {
-		return this.heroController.getHeroes();
+		return this.heroController;
 	},
 
 	getMessenger: function () {
@@ -156,6 +137,14 @@ var game = {
 
 	getStaticData: function () {
 		return this.staticDataController;
+	},
+
+	getAdventure: function () {
+		return this.adventureController;
+	},
+
+	getEnvironments: function () {
+		return this.environmentController;
 	},
 
 }

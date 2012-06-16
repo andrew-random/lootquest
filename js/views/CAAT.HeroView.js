@@ -3,6 +3,8 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
   path          : null,
   wanderTimeout : null,
   zOrder        : 3000,
+  statusBox     : null,
+  statusBoxTimeout : null,
 
   initActor: function () {
 
@@ -66,15 +68,18 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
               function(scene_time, timer_time, timertask_instance)  {   // timeout
               },
               function(scene_time, timer_time, timertask_instance)  {   // tick
+
+                self.model.calcStatus();
+
                 if (self.model.canAdventure()) {
                   timer.setText('I am ready!');
                 } else {
-                  timer.setText(self.model.getAdventureCooldownSecondsRemaining());
+                  timer.setText(formatSecondsRemaining(self.model.getAdventureCooldownSecondsRemaining()));
                 }
               },
               function(scene_time, timer_time, timertask_instance)  {   // cancel
               }
-      )
+    )
 
 
     return actor;
@@ -84,18 +89,42 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
 
     this._baseEntityReady();
     
+    this.model.on('change change:status', this.showStatus, this)
+    
+    this.showStatus();
+
+  },
+
+  showStatus: function () {
+
     var self = this;
 
-/*
-    this.pathBehaviour = new CAAT.PathBehavior();
+    if (this.statusBox !== null) {
+      this.statusBox.setExpired(true).setDiscardable(true);
+      this.statusBox = null;
+    }
 
-    this.actor.addBehavior(this.pathBehaviour);
-    this.actor.addListener({
-        behaviorExpired : function(behavior, time, actor) {
-            self.wander();
-        }});*/
+    this.statusBox = new CAAT.ActorContainer().setBounds(0, 0, 60, 20).setFillStyle('#ccc');
 
-   // this.wander();
+     var statusText = new CAAT.TextActor().
+      setPosition(3, 3, 0, 20).
+      setTextAlign('left').
+      setBaseline('top').
+      setTextFillStyle('#000').
+      enableEvents(false).
+      setText(this.model.getStatus()).
+      setFont('12px Verdana');
+    this.statusBox.addChild(statusText);
+
+    this.actor.addChildImmediately(this.statusBox);
+
+    this.statusBoxTimeout = setTimeout(function () {
+      if (self.statusBox) {
+        self.statusBox.setExpired(true).setDiscardable(true);
+        self.statusBox = null;
+      }
+    }, 2000);
+
   },
 
   wander: function () {
