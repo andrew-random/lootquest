@@ -13,15 +13,10 @@ game.registry = {
 	entities: {},
 
 	initialize: function () {
-		this.entities[game.EntityTypeTile] = [];
-		this.entities[game.EntityTypeItem] = [];
-		this.entities[game.EntityTypeHero] = [];
+		this.clearEntities();
 	},
 
 	addEntity: function (entityType, entity) {
-		if (typeof this.entities[entityType] == 'undefined') {
-			this.entities[entityType] = [];
-		}
 		this.entities[entityType].push(entity);
 	},
 
@@ -144,7 +139,10 @@ game.registry = {
 	},
 
 	clearEntities: function () {
-		this.entities = [];
+		this.entities[game.EntityTypeTile] = [];
+		this.entities[game.EntityTypeItem] = [];
+		this.entities[game.EntityTypeHero] = [];
+		this.entities[game.EntityTypeMessage] = [];
 	}
 
 }

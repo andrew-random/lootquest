@@ -4,10 +4,6 @@ game.CAAT.DirectorView = Backbone.View.extend({
   scenes          : null,
   director        : null,
 
-  // screen properties
-  screenWidth  : 640,
-  screenHeight : 960,
-
   // known scenes
   SCENE_DEFAULT   : 'SceneGardenView',
   SCENE_GARDEN    : 'SceneGardenView',
@@ -16,10 +12,10 @@ game.CAAT.DirectorView = Backbone.View.extend({
 
     // events
     this.on('gameStart', this.gameStart, this);
-      
+
     this.director = new CAAT.Director().initialize(
-      this.screenWidth,    // retina width
-      this.screenHeight,    // retina height
+      game.screenWidth,     // retina width
+      game.screenHeight,    // retina height
       this.el);
 
     if (options && options.scene) {

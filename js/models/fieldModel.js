@@ -157,10 +157,6 @@ game.ModelField = Backbone.Model.extend({
 		return this.get('maxTileHeight');
 	},
 
-	getTotalFieldDimensions: function () {
-		return {x:this.totalTileWidth, y:this.totalTileHeight};
-	},
-
 	destroyItem: function (doomedItemModel) {
 
 		// update the tile
@@ -169,9 +165,6 @@ game.ModelField = Backbone.Model.extend({
 			var tileEntity = this.getTileByPos(tilePos.x, tilePos.y);
 			tileEntity.removeItemModel();
 		}
-
-		// remove the view/entity
-		game.getRegistry().removeEntityByUniqueId(doomedItemModel.getUniqueId(), game.ModelItem.EntityTypeItem);
 
 		// remove the item model
 		this.removeItemModel(doomedItemModel);

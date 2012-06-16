@@ -58,7 +58,13 @@ game.ModelTile = Backbone.Model.extend({
 					return true;
 
 				} catch (exception) {
-					console.log('Could not add to item #' + newItemModel.getUniqueId() + '/' + newItemModel.get('name') + ' on #' + this.getItemModel().getUniqueId() + '/' + this.getItemModel().get('name') +': ' + exception);
+
+					var messageItem = new game.ModelMessage();
+					messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
+					messageItem.setMessageTitle("Can't put that there.");
+					messageItem.setMessage('Could not add to item #' + newItemModel.getUniqueId() + '/' + newItemModel.get('name') + ' on #' + this.getItemModel().getUniqueId() + '/' + this.getItemModel().get('name') +': ' + exception);
+					game.getMessenger().addMessage(messageItem);
+
 					return false;
 				}
 			}

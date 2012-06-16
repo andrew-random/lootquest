@@ -35,6 +35,9 @@ var game = {
 		// todo: load gameData from local SQLite goodness
 		this.fieldModel = new game.ModelField();
 
+		// todo: load queued messengers
+		this.messengerController.initialize();
+
 		// init CAAT instance
 		this.director = new game.CAAT.DirectorView({
 				model 	: this.fieldModel, 
@@ -60,7 +63,7 @@ var game = {
 		}).length;
 
 		var totalPossibleLoot = 25;
-		var maxLoot = rand(1, 5);
+		var maxLoot = rand(1, 3);
 		for (var x = 0; x <= maxLoot; x++) {
 
 			if (totalLoot == totalPossibleLoot) {
@@ -98,13 +101,23 @@ var game = {
 		var gold = new game.ModelItem({
 				name:'Gold', 
 				type: 'gold',
-				quantity:rand(20, 100),
+				quantity:100,
 				maxQuantity: 150,
-				weight: 30,
 				hasSprite:true
 		});
 		this.fieldModel.addItemModel(gold);
-		this.fieldModel.placeInRandomTile(gold);
+		this.fieldModel.placeNewItem(gold, -1, 0);
+
+		// throw them a sword
+		var sword = new game.ModelItem({
+				name:'Sword', 
+				type: 'weapon',
+				quantity:1,
+				maxQuantity: 1,
+				hasSprite:true
+		});
+		this.fieldModel.addItemModel(sword);
+		this.fieldModel.placeNewItem(sword, 1, 0);
 
 	},
 
@@ -139,9 +152,17 @@ var game = {
 		return this.heroController.getHeroes();
 	},
 
+	getMessenger: function () {
+		return this.messengerController;
+	}
+
 
 }
 game.CAAT = [];
 game.EntityTypeTile		= 'tile';
 game.EntityTypeItem		= 'item';
 game.EntityTypeHero		= 'hero';
+game.EntityTypeMessage 	= 'message';
+
+game.screenWidth  		= 640;
+game.screenHeight 		= 960;

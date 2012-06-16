@@ -14,14 +14,17 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 		// fieldmodel events
 		this.model.on('placeNewItem', this.placeNewItem, this);
 		this.model.getItemCollection().on('add', this.addItemEntity, this);
+		this.model.getItemCollection().on('remove', this.removeItemEntity, this);
 
 		// hero collection events
-		game.getHeroController().heroCollection.on('add', this.addHeroEntity, this);
+		game.getHeroController().getHeroes().on('add', this.addHeroEntity, this);
+
+		// messenger events
+		game.getMessenger().getMessages().on('add', this.addMessageEntity, this);
+		game.getMessenger().getMessages().on('remove', this.removeMessageEntity, this);
 
 		// director events
 		this.on('gameStart', this.gameStart, this);
-
-
 
 		this.scene = new CAAT.Scene();
 		this.scene.setFillStyle('#ccc');
@@ -71,29 +74,56 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 		
 	},
 
-	addItemEntity: function (itemModel) {
+	addItemEntity: function (model) {
 		// add existing items as entities
-		var itemView = new game.CAAT.ItemView({
+		var entityView = new game.CAAT.ItemView({
 			container 	: this.scene, 
-			model 		: itemModel
+			model 		: model
 		});
-		game.getRegistry().addEntity(game.EntityTypeItem, itemView);
+		game.getRegistry().addEntity(game.EntityTypeItem, entityView);
 
 		if (this.gameStarted) {
-			itemView.trigger('entityReady');
+			entityView.trigger('entityReady');
 		}
 	},
 
-	addHeroEntity: function (heroModel) {
-		var heroView = new game.CAAT.HeroView({
+	removeItemEntity: function (model) {
+		game.getRegistry().removeEntityByUniqueId(model.getUniqueId(), game.ModelItem.EntityTypeItem);
+	},
+
+	addHeroEntity: function (model) {
+		var entityView = new game.CAAT.HeroView({
 			container 	: this.scene, 
-			model 		: heroModel
+			model 		: model
 		});
-		game.getRegistry().addEntity(game.EntityTypeHero, heroView);
+		game.getRegistry().addEntity(game.EntityTypeHero, entityView);
 
 		if (this.gameStarted) {
-			itemView.trigger('entityReady');
+			entityView.trigger('entityReady');
 		}
+	},
+
+	addMessageEntity: function (model) {
+		var options = {
+			container 	: this.scene, 
+			model 		: model
+		};
+
+		if (model.getMessageType() == game.ModelMessage.MessageTypeInfo) {
+			var entityView = new game.CAAT.MessageInfoView(options);
+		} else {
+			var entityView = new game.CAAT.MessagePopupView(options);
+		}
+		
+		game.getRegistry().addEntity(game.EntityTypeMessage, entityView);
+
+		if (this.gameStarted) {
+			entityView.trigger('entityReady');
+		}
+	},
+
+	removeMessageEntity: function (model) {
+		game.getRegistry().removeEntityByUniqueId(model.getUniqueId(), game.ModelItem.EntityTypeMessage);
 	},
 
 	initItemEntities: function () {
@@ -123,23 +153,29 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 		// render everything
 		var entities = game.getRegistry().entities;
 		
-		// render tiles first
+		// render tiles
 		var count = entities[game.EntityTypeTile].length;
 		while (count--) {
 			entities[game.EntityTypeTile][count].trigger('entityReady');
 		}
 
-		// render items second
+		// render items
 		var count = entities[game.EntityTypeItem].length;
 		while (count--) {
 			entities[game.EntityTypeItem][count].trigger('entityReady');
 		}
 
-		// render heroes last
+		// render heroes
 		var count = entities[game.EntityTypeHero].length;
 		while (count--) {
 			entities[game.EntityTypeHero][count].trigger('entityReady');
 		}
+
+		// render messages
+		var count = entities[game.EntityTypeMessage].length;
+		while (count--) {
+			entities[game.EntityTypeMessage][count].trigger('entityReady');
+		} 
 		
 		return this;
 	}

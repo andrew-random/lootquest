@@ -138,8 +138,6 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
 
     actor.mouseUp = function (e) {
 
-      var fieldDimensions = game.getField().getTotalFieldDimensions();
-
       var tileActors = [];
       try {
         var tileEntities = game.getRegistry().getEntitiesByType(game.EntityTypeTile);
@@ -150,8 +148,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
         // do nothing
       }
 
-      var max = Math.max(fieldDimensions.x, fieldDimensions.y );
-      var entitiesCollision = new CAAT.QuadTree().create(self.container.AABB.x,self.container.AABB.y, self.container.width, self.container.height, tileActors);
+      var entitiesCollision = new CAAT.QuadTree().create(0, 0, game.screenWidth, game.screenHeight, tileActors);
       var collide = entitiesCollision.getOverlappingActors( new CAAT.Rectangle().setBounds(e.screenPoint.x -5, e.screenPoint.y -5, 10, 10));
 
       var wasPlaced = false;
