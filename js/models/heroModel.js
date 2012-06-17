@@ -11,7 +11,7 @@ game.ModelHero = game.ModelBase.extend({
 		defense 	: 1,
 		charisma 	: 1,
 		level 		: 1,
-		equipment	: [],
+		equipment	: {},
 		xp			: 0,
 
 		// cooldown
@@ -59,7 +59,9 @@ game.ModelHero = game.ModelBase.extend({
 		return true;
 	},
 	addEquipment: function (equipmentModel) {
-		this.get('equipment').push(equipmentModel.getUniqueId());
+		var equipment = this.get('equipment');
+		equipment[equipmentModel.getEquipmentType()] = equipmentModel.getUniqueId();
+		return true;
 	},
 	removeEquipment: function (equipmentModel) {
 		var equipment = this.getEquipment();
@@ -77,9 +79,8 @@ game.ModelHero = game.ModelBase.extend({
 	getEquipmentModels: function () {
 		var data = [];
 		var equipment = this.getEquipment();
-		var count = equipment.length;
-		while (count--) {
-			data.push(game.getField().getItemByUniqueId(equipment[count]));
+		for (var x in equipment) {
+			data.push(game.getField().getItemByUniqueId(equipment[x]));
 		}
 		return data;
 	},

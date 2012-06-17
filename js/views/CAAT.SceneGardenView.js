@@ -39,6 +39,10 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 
 		this.initItemEntities();
 
+		// hero detail view ( pops up and hides as necessary )
+		this.heroDetailView = new game.CAAT.HeroDetailView({
+			container 	: this.scene
+		});
 
 
 		var adventureButton = new CAAT.ActorContainer().setBounds(500, 20, 100, 40).setFillStyle('#eee');
@@ -165,6 +169,10 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 		} 
 		
 		return this;
+	},
+
+	getHeroDetailView: function () {
+		return this.heroDetailView;
 	}
 
 });

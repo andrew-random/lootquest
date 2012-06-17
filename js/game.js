@@ -101,6 +101,12 @@ var game = {
 		this.fieldModel.addItemModel(gold);
 		this.fieldModel.placeNewItem(gold, -1, 0);
 
+		// throw them some gold
+		var gold = game.getStaticData().getModel(game.ModelBase.ModelClassItem, 'gold', {quantity: 50});
+		
+		this.fieldModel.addItemModel(gold);
+		this.fieldModel.placeNewItem(gold, -1, -1);
+
 		// throw them a sword
 		var sword = game.getStaticData().getModel(game.ModelBase.ModelClassEquipmentItem, 'sword', {quantity: 1});
 		this.fieldModel.addItemModel(sword);
@@ -108,6 +114,29 @@ var game = {
 
 		// equip this sword
 		firstHero.addEquipment(sword);
+
+		// throw them a shield
+		var shield = game.getStaticData().getModel(game.ModelBase.ModelClassEquipmentItem, 'shield', {quantity: 1});
+		this.fieldModel.addItemModel(shield);
+		this.fieldModel.placeNewItem(shield, 0, -1);
+
+		// equip this sword
+		firstHero.addEquipment(shield);
+
+		// throw them an axe
+		var axe = game.getStaticData().getModel(game.ModelBase.ModelClassEquipmentItem, 'axe', {quantity: 1});
+		this.fieldModel.addItemModel(axe);
+		this.fieldModel.placeNewItem(axe, 0, -2);
+
+		// equip this sword
+		firstHero.addEquipment(axe);
+
+
+
+		var treasureChest = game.getStaticData().getModel(game.ModelBase.ModelClassContainerItem, 'treasure_chest', {quantity: 1});
+		
+		this.fieldModel.addItemModel(treasureChest);
+		this.fieldModel.placeNewItem(treasureChest, 1,1);
 
 	},
 

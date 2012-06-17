@@ -2,6 +2,7 @@ game.ModelEquipmentItem = game.ModelItem.extend({
 	
 	defaults: {
 		modelClass 		: 'equipment_item',
+		equipmentType  	: null,
 		heroUniqueId 	: null,
 		attackBonus		: 0,
 		defenseBonus	: 0,
@@ -25,4 +26,19 @@ game.ModelEquipmentItem = game.ModelItem.extend({
 	getHeroModel: function () {
 		return game.heroController.getHeroByUniqueId(this.getHeroUniqueId());
 	},
+
+	isAttackItem: function () {
+		return this.get('equipmentType') == game.ModelEquipmentItem.EquipmentTypeAttack;
+	},
+
+	isDefenseItem: function () {
+		return this.get('equipmentType') == game.ModelEquipmentItem.EquipmentTypeDefense;	
+	},
+
+	getEquipmentType: function () {
+		return this.get('equipmentType');
+	},
+
 });
+game.ModelEquipmentItem.EquipmentTypeAttack = 'attack';
+game.ModelEquipmentItem.EquipmentTypeDefense = 'defense';

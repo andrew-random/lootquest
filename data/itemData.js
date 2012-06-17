@@ -52,13 +52,23 @@ var data = {};
 data['sword'] = {
 	name: 'Sword', 
 	type: 'sword', 
+	equipmentType: game.ModelEquipmentItem.EquipmentTypeAttack,
 	attackBonus: 1,
 	defenseBonus: 0,
 	maxQuantity:1,
 }
+data['axe'] = {
+	name: 'Axe', 
+	type: 'axe', 
+	equipmentType: game.ModelEquipmentItem.EquipmentTypeAttack,
+	attackBonus: 3,
+	defenseBonus: -1,
+	maxQuantity:1,
+}
 data['shield'] = {
 	name: 'Shield', 
-	type: 'shield', 
+	type: 'shield',
+	equipmentType: game.ModelEquipmentItem.EquipmentTypeDefense, 
 	attackBonus: 0,
 	defenseBonus: 1,
 	maxQuantity:1,

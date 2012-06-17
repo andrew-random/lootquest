@@ -1,13 +1,37 @@
 game.CAAT.ItemView = game.CAAT.EntityView.extend({
 
   zOrder    : 2000,
+  quantityActor: null,
 
   entityReady: function () {
 
     this._baseEntityReady();
 
-    this.model.on('change change:quantity', this.redraw, this);
-    this.model.on('change change:tilepos', this.redraw, this);
+    this.model.on('change:quantity', this.updateQuantity, this);
+    this.model.on('change:children', this.updateQuantity, this);
+    this.model.on('change:tilepos', this.moveActor, this);
+  },
+
+  moveActor: function () {
+    if (this.actor !== null) {
+      var canvasPos = this.getCanvasPos();
+      this.actor.setPosition(canvasPos.x, canvasPos.y);
+
+      if (!this.model.isHeroHomeItem() && this.model.isChild()) {
+        this.actor.setFillStyle('lightblue');
+        this.actor.setScale(.5, .5);
+        this.actor.enableEvents(false);
+      }
+    }
+  },
+
+  updateQuantity: function () {
+    if (this.model.getMaxQuantity() != 1) {
+      this.quantityActor.setText(this.model.getQuantity() + '/' + this.model.getMaxQuantity());
+      if (this.model.getMaxQuantity() == this.model.getQuantity()) {
+         this.quantityActor.setTextFillStyle('#06ff00');
+      }
+    }
   },
 
   getCanvasPos: function () {
@@ -58,7 +82,6 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
     var tileMargin  = game.CAAT.SceneGardenView.tileMargin;
     var tilePos     = this.model.getTilePos();
     var canvasPos   = this.getCanvasPos();
-   
 
     var actor = new CAAT.ActorContainer(). 
       setBounds(canvasPos.x, canvasPos.y, tileWidth, tileHeight).
@@ -96,33 +119,20 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       setFont('16px Verdana');
     actor.addChild(label);
 
-    var quantityLabel = new CAAT.TextActor().
+    this.quantityActor = new CAAT.TextActor().
       setPosition(10,10).
       setTextAlign('right').
       setTextFillStyle('#fff').
       setBaseline('top').
       enableEvents(false);
-    actor.addChild(quantityLabel);
+    actor.addChild(this.quantityActor);
 
     if (this.model.getMaxQuantity() != 1) {
-      quantityLabel.setText(this.model.getQuantity() + '/' + this.model.getMaxQuantity());
+      this.quantityActor.setText(this.model.getQuantity() + '/' + this.model.getMaxQuantity());
     }
     if (this.model.getMaxQuantity() == this.model.getQuantity()) {
-       quantityLabel.setTextFillStyle('#06ff00');
+       this.quantityActor.setTextFillStyle('#06ff00');
     }
-    
-    
-/*
-    var idLabel = new CAAT.TextActor().
-      setPosition(80, 60).
-      setTextAlign('right').
-      setTextFillStyle('#fff').
-      setBaseline('top').
-      enableEvents(false).
-      setText(this.model.getUniqueId());
-    actor.addChild(idLabel);*/
-
-
 
     actor.mouseUp = function (e) {
 
@@ -130,7 +140,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       try {
         var tileEntities = game.getRegistry().getEntitiesByType(game.EntityTypeTile);
         for (var x in tileEntities) {
-            tileActors.push(tileEntities[x].getActor());
+          tileActors.push(tileEntities[x].getActor());
         }
       } catch (exception) {
         // do nothing
@@ -150,34 +160,23 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
         if (tileEntity.model.hasItemModel() && tileEntity.model.getItemModel().getUniqueId() == self.model.getUniqueId()) {
 
           // if the item is placed back on it's own tile, do nothing.
-          wasPlaced = false;
 
         } else if (tileEntity.model.canPlaceNewItem(self.model)) {
 
           // move an item to an empty tile
           game.getField().placeNewItem(self.model, tilePos.x, tilePos.y);
-          wasPlaced = true;
 
         } else if (tileEntity.model.canAddToItem(self.model)) {
 
           // add two of the same items together, or add children to a container
           game.getField().addToItem(self.model, tilePos.x, tilePos.y);
 
-          var containerItemModel = game.getRegistry().getEntityByUniqueId(tileEntity.model.getItemModel().getUniqueId(), game.EntityTypeItem);
-          if (containerItemModel) {
-            // redraw container
-            containerItemModel.redraw();
-          }
-
-          wasPlaced = true;
-
         }
         
       }
 
-      if (!wasPlaced) {
-        actor.setLocation(canvasPos.x, canvasPos.y);
-      }
+      // replace actor
+      self.moveActor();
 
       // Re-draw all children of this element
       if (self.model.isContainerItem()) {
@@ -193,7 +192,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
           }
       }
 
-      // Re-draw heroes
+      // Re-draw heroess
       if (self.model.isHeroHomeItem()) {
         var heroEntity = game.getRegistry().getEntityByUniqueId(self.model.getHeroUniqueId(), game.EntityTypeHero);
         if (heroEntity) {
@@ -201,6 +200,14 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
         }
       }
       
+    }
+
+    actor.mouseClick = function () {
+      if (self.model.isHeroHomeItem()) {
+          var heroDetailView = game.getDirector().getScene().getHeroDetailView();
+          heroDetailView.setModel(self.model.getHeroModel());
+          heroDetailView.show();
+      }
     }
 
     // attach to scene

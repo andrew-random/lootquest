@@ -119,8 +119,8 @@ game.adventureController = {
 			totalLoot++;
 
 			var randomItem = environmentModel.getRandomLoot();
-			fieldModel.addItemModel(randomItem);
 			fieldModel.placeInRandomTile(randomItem);
+			fieldModel.addItemModel(randomItem);
 		}
 
 		// award XP

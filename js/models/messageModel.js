@@ -5,6 +5,7 @@ game.ModelMessage = game.ModelBase.extend({
 		messageType  		: 'popup',
 		messageTitle 		: 'Default Message',
 		message 			: 'Message body',
+		heroModel 			: null,
 		hideAfterSeconds 	: 3,
 	},
 
@@ -37,6 +38,16 @@ game.ModelMessage = game.ModelBase.extend({
 	},
 	getHideAfter: function () {
 		return this.get('hideAfterSeconds');
+	},
+
+	setHeroModel: function (heroModel) {
+		this.set('heroModel', heroModel);
+	},
+	getHeroModel: function () {
+		return this.get('heroModel');
+	},
+	hasHeroModel: function () {
+		return this.get('heroModel') !== null;
 	}
 
 });
