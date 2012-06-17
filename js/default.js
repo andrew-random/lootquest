@@ -42,11 +42,13 @@ function formatSecondsRemaining(date) {
     var minutes = Math.floor(remaining / minuteMultiplier);
     remaining = remaining - minutes * minuteMultiplier;
     var seconds = Math.floor(remaining / secondMultiplier);
-    if (minutes < 10)
-            minutes = "0" + minutes;
-    if (seconds < 10)
-            seconds = "0" + seconds;
-    return hours + ":" + minutes + ":" + seconds;
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+    return (hours ? hours + ":" : '') + minutes + ":" + seconds;
 }
 function getWeightedRandom(data) {
 

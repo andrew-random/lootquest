@@ -1,10 +1,11 @@
 game.ModelMessage = game.ModelBase.extend({
 
-	default: {
-		modelClass 		: 'message',		
-		messageType  	: 'popup',
-		messageTitle 	: 'Default Message',
-		message 		: 'Message body'
+	defaults: {
+		modelClass 			: 'message',		
+		messageType  		: 'popup',
+		messageTitle 		: 'Default Message',
+		message 			: 'Message body',
+		hideAfterSeconds 	: 3,
 	},
 
 	setMessageType: function (messageType) {
@@ -28,6 +29,14 @@ game.ModelMessage = game.ModelBase.extend({
 
 	getMessageTitle: function () {
 		return this.get('messageTitle');
+	},
+
+	// for info messages - auto hide after the user ignores them.
+	setHideAfter: function (seconds) {
+		return this.set('hideAfterSeconds', seconds);
+	},
+	getHideAfter: function () {
+		return this.get('hideAfterSeconds');
 	}
 
 });

@@ -87,8 +87,8 @@ game.adventureController = {
 			heroNames.push(this.selectedHeroModels[count].get('name'));
 		}
 
-		var partyIsVictorious = this.calcCombat();
-		if (partyIsVictorious) {
+		var playerWon = this.calcCombat();
+		if (playerWon) {
 			var count = this.selectedHeroModels.length;
 			while (count--) {
 				this.selectedHeroModels[count].setStatus('Boasting');
@@ -109,7 +109,11 @@ game.adventureController = {
 		for (var x = 0; x <= maxLoot; x++) {
 
 			if (totalLoot == totalPossibleLoot) {
-				console.log('Board is full.');
+				var messageItem = new game.ModelMessage();
+				messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
+				messageItem.setMessageTitle("Your land is full!");
+				messageItem.setMessage("We could not fit all of your loot onto the grid.");
+				game.getMessenger().addMessage(messageItem);
 				continue;
 			}
 			totalLoot++;
@@ -119,6 +123,12 @@ game.adventureController = {
 			fieldModel.placeInRandomTile(randomItem);
 		}
 
+		// award XP
+		var count = this.selectedHeroModels.length;
+		while (count--) {
+			this.selectedHeroModels[count].addXP(this.getAdventureXP(playerWon));
+		}
+
 		var messageItem = new game.ModelMessage();
 		messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
 		if (this.selectedHeroModels.length > 1) {
@@ -126,21 +136,40 @@ game.adventureController = {
 		} else {
 			messageItem.setMessageTitle(heroNames.join(', ') + " returns!");
 		}
-		messageItem.setMessage(environmentModel.get('name') + " was succesfully pillaged!");
+		messageItem.setMessage(environmentModel.get('name') + (playerWon ? " was succesfully pillaged!" : " fought off your heroes!"));
 		game.getMessenger().addMessage(messageItem);
 	},
 
 	calcCombat: function() {
-		var totalOffense = 0;
+		var totalPlayerAttack = 0;
 	
 		var count = this.selectedHeroModels.length;
 		while (count--) {
-			totalOffense += this.selectedHeroModels[count].getTotalAttack();
+			totalPlayerAttack += this.selectedHeroModels[count].getTotalAttack();
 		}
 
-		// companions
+		// todo: companions
+		// 
+		var totalPlayerDefense = 0;
+	
+		var count = this.selectedHeroModels.length;
+		while (count--) {
+			totalPlayerDefense += this.selectedHeroModels[count].getTotalDefense();
+		}
+
+		// todo: companions
 
 
-		return true;
-	}
+		// todo: actual combat math. 
+		// this is bad even for hackiness.
+		return totalPlayerAttack - this.selectedEnvironmentModel.getDefense() >= this.selectedEnvironmentModel.getAttack() - totalPlayerDefense;
+	},
+
+	getAdventureXP: function (playerWon) {
+		var totalXP = this.selectedEnvironmentModel.getAttack() + this.selectedEnvironmentModel.getDefense();
+		if (!playerWon) {
+			totalXP = Math.ceil(totalXP / 2);
+		}
+		return totalXP;
+	},
 }

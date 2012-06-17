@@ -48,6 +48,12 @@ game.ModelEnvironment = game.ModelBase.extend({
 				weight: 2,
 			});
 			possibleLoot.push({
+				type: 'shield',
+				modelClass: game.ModelBase.ModelClassEquipmentItem,
+				quantity:1,
+				weight: 2,
+			});
+			possibleLoot.push({
 				type: 'gold',
 				modelClass: game.ModelBase.ModelClassItem,
 				quantity:rand(10, 50),
@@ -82,5 +88,14 @@ game.ModelEnvironment = game.ModelBase.extend({
 
 			var selectedItem = getWeightedRandom(possibleLoot);
 			return game.getStaticData().getModel(selectedItem.modelClass, selectedItem.type, selectedItem);
-		}
+		},
+
+		getDefense: function () {
+			return this.get('defense');
+		},
+
+		getAttack: function () {
+			return this.get('attack');
+		},
+
 });

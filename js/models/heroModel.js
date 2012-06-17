@@ -149,7 +149,63 @@ game.ModelHero = game.ModelBase.extend({
 			defenseBonus += equipment[count].getDefenseBonus();
 		}
 		return this.get('defense') + defenseBonus;
-	}
+	},
+
+	addXP: function (value) {
+		this.set('xp', this.get('xp') + value);
+		this.calcLevel();
+	},
+
+	getXP: function () {
+		return this.get('xp');
+	},
+
+	calcLevel: function () {
+		var xp = this.getXP();
+		var levels = [
+			0,
+			10,
+			100,
+			300,
+			500,
+			700,
+			1000,
+			1300,
+			1600,
+			1900,
+			2200,
+			2500,
+			2800,
+		];
+		var count = levels.length;
+		while (count--) {
+			if (levels[count] <= xp) {
+				if (this.getLevel() != (count + 1)) {
+					this.setLevel(count + 1);
+				}
+				return true;
+			}
+		}
+		return false;
+	},
+
+	setLevel: function (value) {
+
+		if (this.get('level') == value) {
+			return false;
+		}
+
+		this.set('level', value);
+
+		// increment attack and defense
+		this.set('attack', this.get('attack') + 1);
+		this.set('defense', this.get('defense') + 1);
+
+	},
+
+	getLevel: function () {
+		return this.get('level');
+	},
 
 
 

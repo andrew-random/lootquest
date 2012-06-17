@@ -56,9 +56,12 @@ game.CAAT.MessageInfoView = game.CAAT.EntityView.extend({
 		this._baseEntityReady();
 
 		var self = this;
-		setTimeout(function () {
-			game.getMessenger().removeMessage(self.model);
-		}, 2000);
+
+		if (self.model.getHideAfter()) {
+			setTimeout(function () {
+				game.getMessenger().removeMessage(self.model);
+			}, self.model.getHideAfter() * 1000);
+		}
 	},
 
 });

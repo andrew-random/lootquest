@@ -89,7 +89,8 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
 
     this._baseEntityReady();
     
-    this.model.on('change change:status', this.showStatus, this)
+    this.model.on('change:status', this.showStatus, this);
+    this.model.on('change:level', this.levelUp, this);
     
     this.showStatus();
 
@@ -125,6 +126,15 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
       }
     }, 2000);
 
+  },
+
+  levelUp: function () {
+    var messageItem = new game.ModelMessage();
+      messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
+      messageItem.setMessageTitle(this.model.get('name') + " is now Level " + this.model.get('level') + '!');
+      messageItem.setMessage("His stats are now Atk:" + this.model.getAttack() + ', Def:' + this.model.getDefense());
+      messageItem.getHideAfter(false);
+      game.getMessenger().addMessage(messageItem);
   },
 
   wander: function () {

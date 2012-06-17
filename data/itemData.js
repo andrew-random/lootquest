@@ -47,13 +47,20 @@ data['throne'] = {
 game.staticData[game.ModelBase.ModelClassHeroHomeItem] = data;
 
 
-// weapons
+// equipment
 var data = {};
 data['sword'] = {
 	name: 'Sword', 
 	type: 'sword', 
 	attackBonus: 1,
 	defenseBonus: 0,
+	maxQuantity:1,
+}
+data['shield'] = {
+	name: 'Shield', 
+	type: 'shield', 
+	attackBonus: 0,
+	defenseBonus: 1,
 	maxQuantity:1,
 }
 game.staticData[game.ModelBase.ModelClassEquipmentItem] = data;
