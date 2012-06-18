@@ -57,4 +57,4 @@ game.ModelBase.ModelClassCompanionHomeItem 	= 'ModelCompanionHomeItem';
 game.ModelBase.ModelClassContainerItem 		= 'ModelContainerItem';
 game.ModelBase.ModelClassEquipmentItem 		= 'ModelEquipmentItem';
 game.ModelBase.ModelClassHero 				= 'ModelHero';
-
+game.ModelBase.ModelClassCompanion			= 'ModelCompanion';

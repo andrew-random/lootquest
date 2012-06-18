@@ -9,12 +9,20 @@ game.ModelCompanionHomeItem = game.ModelItem.extend({
 	},
 
 	initialize: function () {
+		
 		this._baseInitialize();
 
+		//todo: only trigger this on new item creation, otherwise pull from db
+		this.generateCompanions();
+		
+	},
+
+	generateCompanions: function () {
+		
 		// generate two companions
 		var maxCompanions = this.get('companionQuantity');
 		while (maxCompanions--) {
-			var companionModel = new game.ModelCompanion();
+			var companionModel = game.getStaticData().getModel(game.ModelBase.ModelClassCompanion, this.get('companionType'));
 			companionModel.initNew();
 			game.getCharacters().addCompanion(companionModel);
 			this.addCompanionUniqueId(companionModel.getUniqueId());

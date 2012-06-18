@@ -158,6 +158,46 @@ game.ModelField = Backbone.Model.extend({
 		return this.get('maxTileHeight');
 	},
 
+	getGold: function () {
+		return this.getItemTotal('item', 'gold');
+	},
+	removeGold: function (value) {
+
+		var self = this;
+		var total = 0;
+
+		this.itemCollection.each(function (itemModel) {
+			if (value && itemModel.getModelClass() == 'item' && itemModel.get('type') == 'gold') {
+				if (itemModel.getQuantity() >= value) {
+					
+					itemModel.setQuantity(itemModel.getQuantity() - value);
+					value = 0;
+
+				} else {
+
+					value = value - itemModel.getQuantity();
+					itemModel.setQuantity(0);
+
+				}
+
+				if (itemModel.getQuantity() == 0) {
+					self.destroyItem(itemModel);
+				}
+			}
+		});
+		return total;
+	},
+
+	getItemTotal: function (modelClass, itemType) {
+		var total = 0;
+		this.itemCollection.each(function (itemModel) {
+			if (itemModel.get('modelClass') == modelClass && itemModel.get('type') == itemType) {
+				total += itemModel.getQuantity();
+			}
+		});
+		return total;
+	},
+
 	destroyItem: function (doomedItemModel) {
 
 		// update the tile

@@ -9,7 +9,6 @@ game.ModelCompanion = game.ModelBase.extend({
 		// combat stats
 		attackBonus 		: 1,
 		defenseBonus	 	: 1,
-		
 	},
 
 	initNew: function () {

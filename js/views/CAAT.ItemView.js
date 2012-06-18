@@ -182,8 +182,14 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
         
       }
 
-      // replace actor
+      // position actor
       self.moveActor();
+
+      // redraw container
+      if (self.model.hasParent()) {
+        var containerView = game.getRegistry().getEntityByUniqueId(self.model.getParentId(), game.EntityTypeItem);
+        container.redraw();
+      }
 
       // Re-draw all children of this element
       if (self.model.isContainerItem()) {

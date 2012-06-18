@@ -44,8 +44,32 @@ game.CAAT.AdventureView = game.CAAT.EntityView.extend({
 		this.selectEnvironmentMenu = this.getSelectEnvironmentMenu();
 		contentContainer.addChild(this.selectEnvironmentMenu);
 
+		this.selectPartyMenu = this.getSelectPartyMenu();
+		contentContainer.addChild(this.selectPartyMenu);
+
+		var totalAdventureAttack = new CAAT.TextActor().
+	  	  		setPosition(220, 705).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('14px Verdana').
+	  	  		setText('Total Attack: ' + this.getAdventure().getTotalAttack())
+	  	actor.addChild(totalAdventureAttack);
+
+	  	var totalAdventureDefense = new CAAT.TextActor().
+	  	  		setPosition(220, 720).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('14px Verdana').
+	  	  		setText('Total Defense: ' + this.getAdventure().getTotalDefense())
+	  	actor.addChild(totalAdventureDefense);
+
+		var totalAdventureCost = new CAAT.TextActor().
+	  	  		setPosition(220, 735).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('14px Verdana').
+	  	  		setText('Total Cost: ' + this.getAdventure().getTotalCost())
+	  	actor.addChild(totalAdventureCost);
+
 		var adventureButton = new CAAT.ActorContainer().
-			setBounds(300, 400, 200, 50).
+			setBounds(300, 650, 200, 50).
 			setFillStyle('green')
 			;
 		adventureButton.mouseUp = function () {
@@ -125,6 +149,103 @@ game.CAAT.AdventureView = game.CAAT.EntityView.extend({
 			setText('Explored: ' + environmentModel.get('explored') + '%').
 			setFont('12px Verdana');
 		actor.addChild(environmentExplored);
+
+		return actor;
+	},
+
+	getSelectPartyMenu: function () {
+		var self = this;
+		var actor = new CAAT.ActorContainer().
+			setBounds(0, 400, 550, 860);
+
+		var title = new CAAT.TextActor().
+	  	  		setPosition(20, 0).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('20px Verdana').
+	  	  		setText('Add henchmen?').
+	  	  		enableEvents(false);
+	  	actor.addChild(title);
+
+		var count = 0;
+		game.getCharacters().getCompanionCollection().each(function (companionModel) {
+			actor.addChild(self.getCompanionActor(companionModel, count++));
+		});
+		return actor;
+	},
+
+	getCompanionActor: function (companionModel, count) {
+
+		var self = this;
+		var actor = new CAAT.ActorContainer().
+			enableEvents(true).
+			setBounds(20, 30 + 120 * count, 500, 100).
+			setFillStyle('#ccc')
+			;
+
+		actor.mouseUp = function () {
+			var adventureController = self.getAdventure();
+			if (adventureController.hasCompanionModel(companionModel) && adventureController.canRemoveCompanionModel(companionModel)) {
+
+				adventureController.removeCompanionModel(companionModel);
+				self.redraw();
+
+			} else if (adventureController.canAddCompanionModel(companionModel)) {
+
+				adventureController.addCompanionModel(companionModel);
+				self.redraw();
+
+			}
+			
+		}
+		if (this.getAdventure().hasCompanionModel(companionModel)) {
+			actor.setFillStyle('gold');
+		}
+
+		// hero
+		var image = new Image();
+	    image.src = companionModel.getSprite();
+
+	    var sprite = new CAAT.SpriteImage();
+	    sprite.initialize(image, 1, 1);
+
+	    var spriteContainer = new CAAT.Actor().
+	      setBounds(10, 10, game.CAAT.SceneGardenView.tileWidth, game.CAAT.SceneGardenView.tileHeight).
+	      setBackgroundImage(sprite).
+	      enableEvents(false);
+	    actor.addChild(spriteContainer);
+
+	    var name = new CAAT.TextActor().
+	  	  		setPosition(100, 10).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('20px Verdana').
+	  	  		setText(companionModel.get('name')).
+	  	  		enableEvents(false);
+	  	actor.addChild(name);
+
+
+	    var attackBonus = new CAAT.TextActor().
+	  	  		setPosition(100, 30).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('14px Verdana').
+	  	  		setText('Attack bonus: ' + companionModel.getAttackBonus()).
+	  	  		enableEvents(false);
+	  	actor.addChild(attackBonus);
+
+	  	var defenseBonus = new CAAT.TextActor().
+	  	  		setPosition(100, 50).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('14px Verdana').
+	  	  		setText('Defense bonus: ' + companionModel.getDefenseBonus()).
+	  	  		enableEvents(false);
+	  	actor.addChild(defenseBonus);
+
+		var cost = new CAAT.TextActor().
+	  	  		setPosition(100, 70).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('14px Verdana').
+	  	  		setText('Cost: ' + companionModel.get('costPerAdventure') + ' gold').
+	  	  		enableEvents(false);
+	  	actor.addChild(cost);
 
 		return actor;
 	},

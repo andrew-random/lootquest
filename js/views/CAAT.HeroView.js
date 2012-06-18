@@ -130,10 +130,10 @@ game.CAAT.HeroView = game.CAAT.EntityView.extend({
 
   levelUp: function () {
     var messageItem = new game.ModelMessage();
-      messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
+      messageItem.setMessageType(game.ModelMessage.MessageTypePopup);
       messageItem.setMessageTitle(this.model.get('name') + " is now Level " + this.model.get('level') + '!');
       messageItem.setMessage("His stats are now Atk:" + this.model.getAttack() + ', Def:' + this.model.getDefense());
-      messageItem.getHideAfter(false);
+      messageItem.setHideAfter(false);
       game.getMessenger().addMessage(messageItem);
   },
 

@@ -24,6 +24,10 @@ game.characterController = {
 		this.heroCollection.remove(heroModel);
 	},
 
+	getCompanionCollection: function () {
+		return this.companionCollection;
+	},
+
 	addCompanion: function (companionModel) {
 		this.companionCollection.add(companionModel);
 	},

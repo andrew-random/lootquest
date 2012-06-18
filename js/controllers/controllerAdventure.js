@@ -20,6 +20,13 @@ game.adventureController = {
 		var self = this;
 		this.reset();
 
+		// hack: add all heroes
+		game.getCharacters().getHeroCollection().each(function (heroModel) {
+			//if (heroModel.canAdventure()) {
+				self.selectHero(heroModel);
+			//}
+		});
+
 	},
 
 	canSelectHero: function (heroModel) {
@@ -33,14 +40,100 @@ game.adventureController = {
 		this.selectedHeroModels.push(heroModel);
 	},
 
+	canAddCompanionModel: function (companionModel) {
+		//hack
+		//todo: hero charisma check
+		
+		return true;
+	},
+
+	addCompanionModel: function (companionModel) {
+		this.selectedCompanionModels.push(companionModel);
+	},
+
+	canRemoveCompanionModel: function () {
+		return true;
+	},
+	removeCompanionModel: function (companionModel) {
+		var count = this.selectedCompanionModels.length;
+		while (count--) {
+			if (this.selectedCompanionModels[count].getUniqueId() == companionModel.getUniqueId()) {
+				this.selectedCompanionModels.splice(count, 1);
+			}
+		}
+	},
+	hasCompanionModel: function (companionModel) {
+		var count = this.selectedCompanionModels.length;
+		while (count--) {
+			if (this.selectedCompanionModels[count].getUniqueId() == companionModel.getUniqueId()) {
+				return true;
+			}
+		}
+		return false;
+	},
+
 	canProcessAdventure: function () {
-		return this.canAffordAdventure() && this.hasSelectedEnvironment() && this.hasSelectedHeroes();
+		if (!this.canAffordAdventure()) {
+			throw 'You do not have enough Gold.';
+		}
+		if (!this.hasSelectedEnvironment()) {
+			throw 'Please select an environent.';
+		}
+		if (!this.hasSelectedHeroes()) {
+			throw 'Please select a hero.';
+		}
+		var count = this.selectedHeroModels;
+		while (count--) {
+			if (!this.selectedHeroModels[count].canAdventure()) {
+				throw 'Your heroes need rest.';
+			}
+		}
+		return true;
 	},
 
 	canAffordAdventure: function () {
-		// todo: make sure user has enough gold to pay companions
-		return true;
+		return game.getField().getGold() >= this.getTotalCost();
 	},
+
+	getTotalCost: function () {
+		var totalCost = 0;
+		var count = this.selectedCompanionModels.length;
+		while (count--) {
+			totalCost += this.selectedCompanionModels[count].get('costPerAdventure');
+		}
+		return totalCost;
+	},
+
+	getTotalAttack: function () {
+		var total = 0;
+		// attack
+		var count = this.selectedHeroModels.length;
+		while (count--) {
+			total += this.selectedHeroModels[count].getTotalAttack();
+		}
+
+		var count = this.selectedCompanionModels.length;
+		while (count--) {
+			total += this.selectedCompanionModels[count].getAttackBonus();
+		}
+		return total;
+	},
+
+	getTotalDefense: function () {
+		var total = 0;
+		// attack
+		var count = this.selectedHeroModels.length;
+		while (count--) {
+			total += this.selectedHeroModels[count].getTotalDefense();
+		}
+
+		var count = this.selectedCompanionModels.length;
+		while (count--) {
+			total += this.selectedCompanionModels[count].getDefenseBonus();
+		}
+		return total;
+	},
+
 	hasSelectedEnvironment: function () {
 		return this.selectedEnvironmentModel !== null;
 	}, 
@@ -61,19 +154,17 @@ game.adventureController = {
 
 		var self = this;
 
-		// hack: add all heroes
-		game.getCharacters().getHeroCollection().each(function (heroModel) {
-			if (heroModel.canAdventure()) {
-				self.selectHero(heroModel);
-			}
-		});
+		try {
+			
+			this.canProcessAdventure();
 
-		if (!this.canProcessAdventure()) {
+		} catch (exception) {
+			console.log(exception);
 
 			var messageItem = new game.ModelMessage();
 			messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
-			messageItem.setMessageTitle("Your heroes are still resting!");
-			messageItem.setMessage("They're just really tired right now.");
+			messageItem.setMessageTitle("Could not adventure!");
+			messageItem.setMessage(exception);
 			game.getMessenger().addMessage(messageItem);
 			return false;
 
@@ -82,6 +173,9 @@ game.adventureController = {
 		var fieldModel			= game.getField();
 		var environmentModel 	= this.selectedEnvironmentModel;
 		var heroNames 			= [];
+
+		// remove gold
+		game.getField().removeGold(this.getTotalCost());
 
 		var count = this.selectedHeroModels.length;
 		while (count--) {
@@ -132,40 +226,35 @@ game.adventureController = {
 		}
 
 		// explore the environment a bit
-		environmentModel.incrementExploration((playerWon ? 20 : 10));
+		var explorationAmount = (playerWon ? 20 : 10);
+		environmentModel.incrementExploration(explorationAmount);
 
+		var adventureCompleteMessage = '';
+		if (playerWon) {
+			adventureCompleteMessage += environmentModel.get('name') + " was successfully pillaged!<br />";
+		} else {
+			adventureCompleteMessage += environmentModel.get('name') + " fought off your heroes!<br />";
+		}
+		adventureCompleteMessage += 'All heroes gained ' + this.getAdventureXP(playerWon) + 'XP.<br />';
+		adventureCompleteMessage += ' Your heroes scouted ' + explorationAmount + '% of ' + environmentModel.get('name') + '.<br />';
 
 		var messageItem = new game.ModelMessage();
-		messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
+		messageItem.setMessageType(game.ModelMessage.MessageTypePopup);
 		if (playerWon) {
 			messageItem.setMessageTitle("Victory!");
 		} else {
 			messageItem.setMessageTitle("Defeat!");
 		}
-		messageItem.setMessage(environmentModel.get('name') + (playerWon ? " was successfully pillaged!" : " fought off your heroes!"));
+		messageItem.setMessage(adventureCompleteMessage);
 		game.getMessenger().addMessage(messageItem);
 
 		return true;
 	},
 
 	calcCombat: function() {
-		var totalPlayerAttack = 0;
-	
-		var count = this.selectedHeroModels.length;
-		while (count--) {
-			totalPlayerAttack += this.selectedHeroModels[count].getTotalAttack();
-		}
-
-		// todo: companions
-		// 
-		var totalPlayerDefense = 0;
-	
-		var count = this.selectedHeroModels.length;
-		while (count--) {
-			totalPlayerDefense += this.selectedHeroModels[count].getTotalDefense();
-		}
-
-		// todo: companions
+		
+		var totalPlayerAttack = this.getTotalAttack();
+		var totalPlayerDefense = this.getTotalDefense();
 
 
 		// todo: actual combat math. 

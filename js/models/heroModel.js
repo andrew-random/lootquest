@@ -205,11 +205,11 @@ game.ModelHero = game.ModelBase.extend({
 			return false;
 		}
 
-		this.set('level', value);
-
 		// increment attack and defense
 		this.set('attack', this.get('attack') + 1);
 		this.set('defense', this.get('defense') + 1);
+
+		this.set('level', value);
 
 	},
 

@@ -99,6 +99,10 @@ game.ModelItem = game.ModelBase.extend({
 			
 		},
 
+		setQuantity: function (value) {
+			return this.set('quantity', value)
+		},
+
 		getMaxQuantity: function () {
 			return this.get('maxQuantity');
 		},
