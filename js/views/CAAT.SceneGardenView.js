@@ -11,13 +11,15 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 
 	initialize: function (options) {
 
+		var self = this;
+
 		// fieldmodel events
 		this.model.on('placeNewItem', this.placeNewItem, this);
 		this.model.getItemCollection().on('add', this.addItemEntity, this);
 		this.model.getItemCollection().on('remove', this.removeItemEntity, this);
 
 		// hero collection events
-		game.getHeroes().getHeroCollection().on('add', this.addHeroEntity, this);
+		game.getCharacters().getHeroCollection().on('add', this.addHeroEntity, this);
 
 		// messenger events
 		game.getMessenger().getMessages().on('add', this.addMessageEntity, this);
@@ -44,11 +46,21 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 			container 	: this.scene
 		});
 
+		// hero detail view ( pops up and hides as necessary )
+		this.adventureView = new game.CAAT.AdventureView({
+			container 	: this.scene
+		});
+
 
 		var adventureButton = new CAAT.ActorContainer().setBounds(500, 20, 100, 40).setFillStyle('#eee');
 		adventureButton.mouseUp = function () {
 
+			
 			game.getAdventure().startNewAdventure();
+			self.getAdventureView().setAdventure(game.getAdventure());
+
+			self.getAdventureView().show();
+			
 
 		}
 
@@ -173,6 +185,10 @@ game.CAAT.SceneGardenView = game.CAAT.SceneView.extend({
 
 	getHeroDetailView: function () {
 		return this.heroDetailView;
+	},
+
+	getAdventureView: function () {
+		return this.adventureView;
 	}
 
 });

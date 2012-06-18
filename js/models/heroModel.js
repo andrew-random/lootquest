@@ -33,7 +33,16 @@ game.ModelHero = game.ModelBase.extend({
 			"Brocess",
 			"Friat",
 			"Kange",
-			"Miel"
+			"Miel",
+			'Myke',
+			'Dyn',
+			'Rew',
+			'Jakk',
+			'Fank',
+			'Pitr',
+			'Thyg',
+			'Gilgan',
+			'Erah',
 		];
 		return names[rand(0, names.length - 1)];
 	},

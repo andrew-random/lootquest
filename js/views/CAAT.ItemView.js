@@ -4,12 +4,12 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
   quantityActor: null,
 
   entityReady: function () {
-
     this._baseEntityReady();
 
     this.model.on('change:quantity', this.updateQuantity, this);
     this.model.on('change:children', this.updateQuantity, this);
     this.model.on('change:tilepos', this.moveActor, this);
+
   },
 
   moveActor: function () {
@@ -17,10 +17,14 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       var canvasPos = this.getCanvasPos();
       this.actor.setPosition(canvasPos.x, canvasPos.y);
 
-      if (!this.model.isHeroHomeItem() && this.model.isChild()) {
+      if (this.model.isNew()) {
+        this.actor.setFillStyle('gold');
+      } else if (!this.model.isHeroHomeItem() && this.model.hasParent()) {
         this.actor.setFillStyle('lightblue');
         this.actor.setScale(.5, .5);
         this.actor.enableEvents(false);
+      } else {
+        this.actor.setFillStyle('#515151');
       }
     }
   },
@@ -85,13 +89,16 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
 
     var actor = new CAAT.ActorContainer(). 
       setBounds(canvasPos.x, canvasPos.y, tileWidth, tileHeight).
-      setFillStyle('#515151').
       enableDrag(true);
-        
-    if (!this.model.isHeroHomeItem() && this.model.isChild()) {
+
+    if (this.model.isNew()) {
+      actor.setFillStyle('gold');
+    } else if (!this.model.isHeroHomeItem() && this.model.hasParent()) {
       actor.setFillStyle('lightblue');
       actor.setScale(.5, .5);
       actor.enableEvents(false);
+    } else {
+      actor.setFillStyle('#515151');
     }
     
     var image = new Image();

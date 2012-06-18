@@ -11,7 +11,7 @@ game.environmentController = {
 		return this.environmentCollection.add(environmentModel);
 	},
 
-	removeEnvironment: function () {
+	removeEnvironment: function (environmentModel) {
 		return this.environmentCollection.remove(environmentModel);
 	},
 
@@ -23,6 +23,12 @@ game.environmentController = {
 		return this.environmentCollection.find(function (environmentModel) {
 			return environmentModel.getUniqueId() == uniqueId;
 		});
-	}
+	},
+
+	generateRandomEnvironment: function () {
+		var environmentModel = new game.ModelEnvironment();
+		environmentModel.initNewEnvironment();
+		return environmentModel;
+	},
 
 }

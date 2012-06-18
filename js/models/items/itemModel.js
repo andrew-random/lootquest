@@ -19,6 +19,7 @@ game.ModelItem = game.ModelBase.extend({
 			footprint   : null,			// array of tiles this item takes up
 
 			parentId	: null,			// parent ModelItem
+			children    : [],
 		},		
 
 		/**
@@ -114,14 +115,24 @@ game.ModelItem = game.ModelBase.extend({
 		},
 
 		hasParent: function () {
-			return this.getParentId() !== null;
+			var parentId = this.getParentId();
+			if (typeof parentId== 'undefined') {
+				return false;
+			}
+			if (parentId === null) {
+				return false;
+			}
+			return true;
 		},
 		getParentModel: function () {
 			return game.getField().getItemByUniqueId(this.getParentId());
 		},
 
-		isChild: function () {
-			return this.getParentId() !== null;
+		/**
+		 * Was this model created in the last half second?
+		 */
+		isNew: function () {
+			return (new Date().getTime() - this.get('created') <= 500);
 		},
 
 		isHeroHomeItem: function () {

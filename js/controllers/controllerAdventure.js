@@ -20,33 +20,6 @@ game.adventureController = {
 		var self = this;
 		this.reset();
 
-		// hack: add all heroes
-		game.getHeroes().getHeroCollection().each(function (heroModel) {
-			if (heroModel.canAdventure()) {
-				self.selectHero(heroModel);
-			}
-		});
-
-		// adventure!
-		var environmentModel = game.getEnvironments().getEnvironmentCollection().find(function () { 
-			return true;
-		})
-		this.selectedEnvironmentModel = environmentModel;
-
-		if (this.canProcessAdventure()) {
-			
-			this.processAdventure();
-
-		} else {
-
-			var messageItem = new game.ModelMessage();
-			messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
-			messageItem.setMessageTitle("Your heroes are still resting!");
-			messageItem.setMessage("They're just really tired right now.");
-			game.getMessenger().addMessage(messageItem);
-
-		}
-
 	},
 
 	canSelectHero: function (heroModel) {
@@ -72,11 +45,40 @@ game.adventureController = {
 		return this.selectedEnvironmentModel !== null;
 	}, 
 
+	setSelectedEnvironmentModel: function (environmentModel) {
+		this.selectedEnvironmentModel = environmentModel;
+	},
+	getSelectedEnvironmentModel: function () {
+		return this.selectedEnvironmentModel;
+	},
+
+
 	hasSelectedHeroes: function () {
 		return this.selectedHeroModels.length > 0
 	},
 
 	processAdventure: function () {
+
+		var self = this;
+
+		// hack: add all heroes
+		game.getCharacters().getHeroCollection().each(function (heroModel) {
+			if (heroModel.canAdventure()) {
+				self.selectHero(heroModel);
+			}
+		});
+
+		if (!this.canProcessAdventure()) {
+
+			var messageItem = new game.ModelMessage();
+			messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
+			messageItem.setMessageTitle("Your heroes are still resting!");
+			messageItem.setMessage("They're just really tired right now.");
+			game.getMessenger().addMessage(messageItem);
+			return false;
+
+		}
+
 		var fieldModel			= game.getField();
 		var environmentModel 	= this.selectedEnvironmentModel;
 		var heroNames 			= [];
@@ -105,7 +107,7 @@ game.adventureController = {
 		}).length;
 
 		var totalPossibleLoot = 25;
-		var maxLoot = rand(1, 3);
+		var maxLoot = rand(1, (playerWon ? 3 : 1));
 		for (var x = 0; x <= maxLoot; x++) {
 
 			if (totalLoot == totalPossibleLoot) {
@@ -129,15 +131,21 @@ game.adventureController = {
 			this.selectedHeroModels[count].addXP(this.getAdventureXP(playerWon));
 		}
 
+		// explore the environment a bit
+		environmentModel.incrementExploration((playerWon ? 20 : 10));
+
+
 		var messageItem = new game.ModelMessage();
 		messageItem.setMessageType(game.ModelMessage.MessageTypeInfo);
-		if (this.selectedHeroModels.length > 1) {
-			messageItem.setMessageTitle(heroNames.join(', ') + " return!");
+		if (playerWon) {
+			messageItem.setMessageTitle("Victory!");
 		} else {
-			messageItem.setMessageTitle(heroNames.join(', ') + " returns!");
+			messageItem.setMessageTitle("Defeat!");
 		}
-		messageItem.setMessage(environmentModel.get('name') + (playerWon ? " was succesfully pillaged!" : " fought off your heroes!"));
+		messageItem.setMessage(environmentModel.get('name') + (playerWon ? " was successfully pillaged!" : " fought off your heroes!"));
 		game.getMessenger().addMessage(messageItem);
+
+		return true;
 	},
 
 	calcCombat: function() {

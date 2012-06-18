@@ -13,7 +13,7 @@ game.ModelHeroHomeItem = game.ModelItem.extend({
 		return this.get('heroUniqueId');
 	},
 	getHeroModel: function () {
-		return game.heroController.getHeroByUniqueId(this.getHeroUniqueId());
+		return game.getCharacters().getHeroByUniqueId(this.getHeroUniqueId());
 	},
 
 	canAddToItem: function (newItemModel) {

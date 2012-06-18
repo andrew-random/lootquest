@@ -14,9 +14,12 @@ game.staticDataController = {
 	},
 
 	getModel: function (modelClass, modelType, options) {
-		
+
 		var attributes = [];
 
+		if (!options) {
+			options = {};
+		}
 		// make sure nothing confusing gets passed
 		delete options.type;
 		delete options.weight;

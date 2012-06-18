@@ -110,10 +110,11 @@ game.ModelField = Backbone.Model.extend({
 	},
 
 	placeInRandomTile: function (itemModel) {
+
 		var tiles = this.tileCollection.filter(function (tileModel) {
 			return tileModel.hasItemModel() === false;
 		});
-		
+
 		if (tiles.length) {
 			var tilePos = tiles[rand(0, tiles.length - 1)].getTilePos();
 			this.placeNewItem(itemModel, tilePos.x, tilePos.y);

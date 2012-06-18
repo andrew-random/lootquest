@@ -32,8 +32,8 @@ var game = {
 		// todo: load gameData from local SQLite goodness
 		this.fieldModel = new game.ModelField();
 
-		// todo: load herodata from DB
-		this.heroController.initialize();
+		// todo: load hero and companion data from DB
+		this.characterController.initialize();
 
 		this.adventureController.initialize();
 
@@ -92,51 +92,20 @@ var game = {
 		heroThrone.setHeroUniqueId(firstHero.getUniqueId());
 
 		// add a hero to the user stack
-		game.getHeroes().addHero(firstHero);
+		game.getCharacters().addHero(firstHero);
 
-
-		// throw them some gold
-		var gold = game.getStaticData().getModel(game.ModelBase.ModelClassItem, 'gold', {quantity: 100});
-		
-		this.fieldModel.addItemModel(gold);
-		this.fieldModel.placeNewItem(gold, -1, 0);
 
 		// throw them some gold
 		var gold = game.getStaticData().getModel(game.ModelBase.ModelClassItem, 'gold', {quantity: 50});
 		
 		this.fieldModel.addItemModel(gold);
-		this.fieldModel.placeNewItem(gold, -1, -1);
+		this.fieldModel.placeNewItem(gold, -1, 0);
 
-		// throw them a sword
-		var sword = game.getStaticData().getModel(game.ModelBase.ModelClassEquipmentItem, 'sword', {quantity: 1});
-		this.fieldModel.addItemModel(sword);
-		this.fieldModel.placeNewItem(sword, 1, 0);
-
-		// equip this sword
-		firstHero.addEquipment(sword);
-
-		// throw them a shield
-		var shield = game.getStaticData().getModel(game.ModelBase.ModelClassEquipmentItem, 'shield', {quantity: 1});
-		this.fieldModel.addItemModel(shield);
-		this.fieldModel.placeNewItem(shield, 0, -1);
-
-		// equip this sword
-		firstHero.addEquipment(shield);
-
-		// throw them an axe
-		var axe = game.getStaticData().getModel(game.ModelBase.ModelClassEquipmentItem, 'axe', {quantity: 1});
-		this.fieldModel.addItemModel(axe);
-		this.fieldModel.placeNewItem(axe, 0, -2);
-
-		// equip this sword
-		firstHero.addEquipment(axe);
-
-
-
-		var treasureChest = game.getStaticData().getModel(game.ModelBase.ModelClassContainerItem, 'treasure_chest', {quantity: 1});
+		// add a companion tent
+		var tent = game.getStaticData().getModel(game.ModelBase.ModelClassCompanionHomeItem, 'tent');
 		
-		this.fieldModel.addItemModel(treasureChest);
-		this.fieldModel.placeNewItem(treasureChest, 1,1);
+		this.fieldModel.addItemModel(tent);
+		this.fieldModel.placeNewItem(tent, 1, 0);
 
 	},
 
@@ -156,8 +125,8 @@ var game = {
 		return this.registry;
 	},
 
-	getHeroes: function () {
-		return this.heroController;
+	getCharacters: function () {
+		return this.characterController;
 	},
 
 	getMessenger: function () {

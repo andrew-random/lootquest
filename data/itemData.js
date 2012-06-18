@@ -74,3 +74,14 @@ data['shield'] = {
 	maxQuantity:1,
 }
 game.staticData[game.ModelBase.ModelClassEquipmentItem] = data;
+
+var data = {};
+// companion homes
+data['tent'] = {
+	name: 'Tent', 
+	type: 'tent',
+	maxQuantity:1,
+	companionType: 'swordsman',
+	companionQuantity: 2,
+}
+game.staticData[game.ModelBase.ModelClassCompanionHomeItem] = data;

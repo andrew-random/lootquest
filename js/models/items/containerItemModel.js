@@ -133,7 +133,10 @@ game.ModelContainerItem = game.ModelItem.extend({
 	},
 
 	addChild: function (childUniqueId) {
-		this.get('children').push(childUniqueId);
+		console.log('called');
+		var children = this.get('children');
+		children.push(childUniqueId);
+		this.set('children', children);
 	},
 
 	hasChildren: function () {
