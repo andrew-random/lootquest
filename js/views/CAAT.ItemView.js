@@ -188,7 +188,7 @@ game.CAAT.ItemView = game.CAAT.EntityView.extend({
       // redraw container
       if (self.model.hasParent()) {
         var containerView = game.getRegistry().getEntityByUniqueId(self.model.getParentId(), game.EntityTypeItem);
-        container.redraw();
+        containerView.redraw();
       }
 
       // Re-draw all children of this element

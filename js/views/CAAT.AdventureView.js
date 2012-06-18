@@ -48,24 +48,24 @@ game.CAAT.AdventureView = game.CAAT.EntityView.extend({
 		contentContainer.addChild(this.selectPartyMenu);
 
 		var totalAdventureAttack = new CAAT.TextActor().
-	  	  		setPosition(220, 705).
+	  	  		setPosition(200, 705).
 	  	  		setTextFillStyle('#000').
 	  	  		setFont('14px Verdana').
 	  	  		setText('Total Attack: ' + this.getAdventure().getTotalAttack())
 	  	actor.addChild(totalAdventureAttack);
 
 	  	var totalAdventureDefense = new CAAT.TextActor().
-	  	  		setPosition(220, 720).
+	  	  		setPosition(200, 720).
 	  	  		setTextFillStyle('#000').
 	  	  		setFont('14px Verdana').
 	  	  		setText('Total Defense: ' + this.getAdventure().getTotalDefense())
 	  	actor.addChild(totalAdventureDefense);
 
 		var totalAdventureCost = new CAAT.TextActor().
-	  	  		setPosition(220, 735).
+	  	  		setPosition(200, 735).
 	  	  		setTextFillStyle('#000').
 	  	  		setFont('14px Verdana').
-	  	  		setText('Total Cost: ' + this.getAdventure().getTotalCost())
+	  	  		setText('Total Cost: ' + this.getAdventure().getTotalCost() + ' / ' + game.getField().getGold())
 	  	actor.addChild(totalAdventureCost);
 
 		var adventureButton = new CAAT.ActorContainer().
