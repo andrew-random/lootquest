@@ -86,12 +86,28 @@ game.CAAT.HeroDetailView = game.CAAT.EntityView.extend({
 	  	heroInfoContainer.addChild(attackBase);
 
 	  	var defenseBase = new CAAT.TextActor().
-	  	  		setPosition(30, 250).
+	  	  		setPosition(30, 245).
 	  	  		setTextFillStyle('#000').
 	  	  		setFont('14px Verdana').
 	  	  		setText('Base Def: ' + this.model.getDefense())
 	  	  	;
 	  	heroInfoContainer.addChild(defenseBase);
+
+	  	var attackTotal = new CAAT.TextActor().
+	  	  		setPosition(30, 280).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('14px Verdana').
+	  	  		setText('Total Atk: ' + this.model.getTotalAttack())
+	  	  	;
+	  	heroInfoContainer.addChild(attackTotal);
+
+	  	var defenseTotal = new CAAT.TextActor().
+	  	  		setPosition(30, 295).
+	  	  		setTextFillStyle('#000').
+	  	  		setFont('14px Verdana').
+	  	  		setText('Total Def: ' + this.model.getTotalDefense())
+	  	  	;
+	  	heroInfoContainer.addChild(defenseTotal);
 
 
 	    // attack item

@@ -124,6 +124,11 @@ game.ModelEnvironment = game.ModelBase.extend({
 
 			if (this.get('explored') >= 100) {
 				
+				var environmentComplete = new game.ModelMessage();
+			    environmentComplete.setMessageTitle('You are done with ' + this.get('name') + '!');
+			    environmentComplete.setMessage('There is nothing more to learn here.'); 
+			    game.getMessenger().addMessage(environmentComplete);
+
 				// reward user
 				if (this.get('rewardItem')) {
 					var reward = this.get('rewardItem');
